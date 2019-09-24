@@ -10,8 +10,8 @@ from pprint import pprint
 
 from credentials import api_token
 
-query = 'statuses.type:(For Sale OR Sold)'
-
+query = 'statuses.type:\"For Sale\" AND statuses.type:Sold'
+# query = 'features.value:\"Days on Market\"'
 num_records = 1
 download = True
 data_path = Path('../data')
