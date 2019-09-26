@@ -9,6 +9,7 @@
     // If `fontFamily`, `fontSize` or `lineHeight` are `null`,
     // values from current theme are used.
     "editorConfig": {
-        "lineWrap": "off"
+        "lineWrap": "off",
+        "rulers": [80]
     }
 }

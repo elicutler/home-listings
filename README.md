@@ -15,3 +15,4 @@ If restoring the environment after having previously stopped the notebook instan
 ./init_env.sh
 ```
 
+After running the `init_env.sh` script, if you want to download data through Datafiniti's API you will need to create a `credentials.py` file with a string variable `DATAFINITI_API_TOKEN` containing your Datafiniti API token.

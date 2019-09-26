@@ -6,7 +6,7 @@ SOLD_HOMES_QUERY = '''\
     AND prices.amountMax:*\
     AND features:*\
     AND descriptions.value:*\
-    AND features.key:'\Property History\'
+    AND features.key:'\Property History'\
     AND propertyType:(Home OR \'Multi-Family Dwelling\' OR \'Single Family Dwelling\' OR Townhouse)\
     AND sourceURLs:https\://redfin.com\
     AND dateAdded:[2017-01-01 TO *]\
