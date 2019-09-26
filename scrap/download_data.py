@@ -8,16 +8,21 @@ import sys; sys.path.insert(0, '..')
 from pathlib import Path
 from pprint import pprint
 
-from credentials import api_token
+from credentials import DATAFINITI_API_TOKEN
 
-query = 'statuses.type:\"For Sale\" AND statuses.type:Sold'
+query = '''\
+    statuses.type:\"For Sale\" \
+    AND statuses.type:Sold \
+    AND prices.amountMin:* \
+    AND prices.amountMax:* \
+'''
 # query = 'features.value:\"Days on Market\"'
 num_records = 1
 download = True
 data_path = Path('../data')
 
 request_headers = {
-    'Authorization': 'Bearer ' + api_token,
+    'Authorization': 'Bearer ' + DATAFINITI_API_TOKEN,
     'Content-Type': 'application/json'
 }
 request_data = {
@@ -62,7 +67,8 @@ for rec_name in rec_files:
         rec = {rec_name: json.load(rec_file)}
         rec_dict.update(rec)
         
-with open(data_path/'11460_rec_0.json', 'r') as sample_file:
+# with open(data_path/'11460_rec_0.json', 'r') as sample_file:
+with open(data_path/'11621_rec_0.json', 'r') as sample_file:
     sample = json.load(sample_file)
 
 # is_sale_flattened = []
