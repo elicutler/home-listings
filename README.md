@@ -4,4 +4,5 @@ cd ~/SageMaker
 git clone https://github.com/elicutler/home-listings.git
 cd home-listings
 chmod +x ./init_env.sh
+./init_env.sh
 ```
