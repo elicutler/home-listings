@@ -1,5 +1,5 @@
 
-# restore my custom user settings in place
+# restore my custom user settings
 cp -rf user-settings/.ipython ~/
 cp -rf user-settings/.jupyter/lab/user-settings ~/.jupyter/lab/
 
