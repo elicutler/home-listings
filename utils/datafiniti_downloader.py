@@ -42,6 +42,9 @@ class DatafinitiDownloader:
         AND sourceURLs:redfin.com\
         AND dateAdded:[2017-01-01 TO *]\
     '''
+    # NOTE: query runs fine on website, returns 687,975 results.
+    # Issue must be in spacing.
+    # Try first creating base query, then removing all newline chars and extra spaces
     
     def __init__(self, num_records:int, query_today_updates_only:bool=False):
         self.num_records = num_records
