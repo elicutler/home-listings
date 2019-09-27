@@ -78,7 +78,6 @@ class DatafinitiDownloader:
             json=self.request_data, headers=self.request_headers
         )
         logger.info(f'Post response: {post_resp_obj}')
-        breakpoint()
         post_resp_json = post_resp_obj.json()
         download_id = post_resp_json['id']
         logger.info(f'Download ID: {download_id}')
@@ -91,6 +90,8 @@ class DatafinitiDownloader:
         )
         get_resp_json = get_resp_obj.json()
         results = get_resp_json['results']
+        breakpoint()
+        # TODO: figure out why no results (check query)
         return get_resp_json, results
     
     def _download_all_results_and_upload_to_s3(
