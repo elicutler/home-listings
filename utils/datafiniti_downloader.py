@@ -4,6 +4,7 @@ Requires DATAFINITI_API_TOKEN in ..credentials.py (not in repo).
 Data formatted in JSON.
 '''
 
+import logging
 import requests
 import urllib
 import json
@@ -29,20 +30,20 @@ class DatafinitiDownloader:
     data_path = Path('../data')
 
     sold_homes_query = '''\
-        statuses.type:\'For Sale\'\
+        statuses.type:\"For Sale\"\
         AND statuses.type:Sold\
         AND prices.amountMin:*\
         AND prices.amountMax:*\
         AND features:*\
         AND descriptions.value:*\
-        AND features.key:'\Property History'\
-        AND propertyType:(Home OR \'Multi-Family Dwelling\' OR \
-            \'Single Family Dwelling\' OR Townhouse)\
-        AND sourceURLs:https\://redfin.com\
+        AND features.key:\"Property History\"\
+        AND propertyType:(Home OR \"Multi-Family Dwelling\" OR \
+            \"Single Family Dwelling\" OR Townhouse)\
+        AND sourceURLs:redfin.com\
         AND dateAdded:[2017-01-01 TO *]\
     '''
     
-    def __init__(self, num_records:int, query_today_updates_only:bool):
+    def __init__(self, num_records:int, query_today_updates_only:bool=False):
         self.num_records = num_records
         self.query_today_updates_only = query_today_updates_only
         
@@ -72,12 +73,15 @@ class DatafinitiDownloader:
         self._download_all_results_and_upload_to_s3(results, download_id)
     
     def _send_post_req(self) -> Tuple[Union[list, dict], str]:
-        post_resp_obj = requests.get(
+        post_resp_obj = requests.post(
             'https://api.datafiniti.co/v4/properties/search',
             json=self.request_data, headers=self.request_headers
         )
+        logger.info(f'Post response: {post_resp_obj}')
+        breakpoint()
         post_resp_json = post_resp_obj.json()
         download_id = post_resp_json['id']
+        logger.info(f'Download ID: {download_id}')
         return post_resp_json, download_id
     
     def _send_get_req(self, download_id:int) -> Union[list, dict]:
@@ -95,6 +99,7 @@ class DatafinitiDownloader:
         results_flattened = [i for sublist in results for i in sublist]
         for i, res in enumerate(results_flattened):
             self._download_results_locally(i, res, download_id)
+            # TODO: parse JSON
             # TODO: upload results to s3
             
     def _download_results_locally(
@@ -102,6 +107,7 @@ class DatafinitiDownloader:
     ) -> None:
         result_filepath = self.data_path/f'{download_id}_{indexer}_recs.json'
         urllib.request.urlretrieve(result, result_filepath)
+        logger.info(f'result written to: {result_path}')
             
         
         

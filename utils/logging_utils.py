@@ -6,6 +6,7 @@ def set_logger_defaults(
     level:int=logging.INFO, 
     addFileHandler:bool=False
 ) -> None:
+    logger.setLevel(level)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
