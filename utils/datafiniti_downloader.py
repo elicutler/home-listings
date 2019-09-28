@@ -7,7 +7,7 @@ Data formatted in JSON.
 import logging
 import requests
 import urllib
-import json
+import time
 import os
 import sys; sys.path.insert(0, '..')
 import pandas as pd
@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Union, Tuple, Optional
 from credentials import DATAFINITI_API_TOKEN
 from logging_utils import set_logger_defaults
+from json_listing_parser import JsonListingParser
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -41,11 +42,11 @@ class DatafinitiDownloader:
     
     def __init__(
         self, num_records:int, query_today_updates_only:bool=False,
-        max_get_attempts:int=100
+        get_timeout_secs:int=10
     ):
         self.num_records = num_records
         self.query_today_updates_only = query_today_updates_only
-        self.max_get_attempts = max_get_attempts
+        self.get_timeout_secs = get_timeout_secs
         
         self.query = self._set_query()
         self.request_headers = {
@@ -85,16 +86,17 @@ class DatafinitiDownloader:
     
     def _send_get_req(self, download_id:str) -> Tuple[Union[list, dict], list]:
         status = None
-        get_attempts = 0
+        elapsed_time = 0
+        start_time = time.time()
         
-        while status != 'completed' and get_attempts <= self.max_get_attempts:
+        while status != 'completed' and elapsed_time <= self.get_timeout_secs:
             get_resp_obj = requests.get(
                 f'https://api.datafiniti.co/v4/downloads/{download_id}', 
                 headers=self.request_headers
             )
             get_resp_json = get_resp_obj.json()
             status = get_resp_json['status']
-            get_attempts += 1
+            elapsed_time = time.time() - start_time
             
         assert status == 'completed', (
             'Could not retrieve the download url.'
@@ -130,13 +132,6 @@ class DatafinitiDownloader:
             # TODO
 
                         
-class JsonListingParser:
-    def __init__(self, json_file):
-        self.json_file = json_file
-        with open(json_file, 'r') as file:
-            self.listing = json.load(json_file)
-            
-    #TODO
-        
+
     
                 
