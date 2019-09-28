@@ -130,9 +130,18 @@ class DatafinitiDownloader:
             f for f in os.listdir(self.data_path) 
             if f.startswith(self.json_listing_prefix) and f.endswith('.json')
         ]
-        for l in json_listings:
-            self._parse_single_json_listing()
-        
-                
-        
+        for f in json_listings:
+            json_listing_parser = JsonListingParser(f)
+            # TODO
+
+                        
+class JsonListingParser:
+    def __init__(self, json_file):
+        self.json_file = json_file
+        with open(json_file, 'r') as file:
+            self.listing = json.load(json_file)
             
+    #TODO
+        
+    
+                
