@@ -8,9 +8,9 @@ import logging
 import requests
 import urllib
 import json
-import datetime
 import os
 import sys; sys.path.insert(0, '..')
+import pandas as pd
 
 from pathlib import Path
 from typing import Union, Tuple, Optional
@@ -28,6 +28,7 @@ class DatafinitiDownloader:
     '''
     
     data_path = Path('../data')
+    json_listing_prefix = 'listing'
 
     sold_homes_query = '''\
         statuses.type:\"For Sale\"\
@@ -64,17 +65,19 @@ class DatafinitiDownloader:
         }
         
     def _set_query(self) -> str:
-        if not self.query_today_updates_only:
-            query = self.sold_homes_query
-        elif self.query_today_updates_only:
+        if self.query_today_updates_only:
             today = datetime.datetime.now().strftime('%Y-%m-%d')
-            query = self.sold_homes_query + f'\nAND dateUpdated:{today}'
+            query = self.sold_homes_query + f'\nAND dateUpdated:{today}'         
+        else:
+            query = self.sold_homes_query
         return query
     
-    def download_data_and_upload_to_s3(self) -> None:
+    def upload_results_to_s3(self) -> None:
         post_resp_json, download_id = self._send_post_req()
         get_resp_json, results = self._send_get_req(download_id)
-        self._download_all_results_and_upload_to_s3(results, download_id)
+        for i, r in enumerate(results):
+            self._download_result_locally(i, r)
+            listings = self._parse_json_listings()
     
     def _send_post_req(self) -> Tuple[Union[list, dict], int]:
         post_resp_obj = requests.post(
@@ -89,30 +92,47 @@ class DatafinitiDownloader:
         status = None
         get_attempts = 0
         
-        while status != 'completed' and self.max_get_attempts:
-                get_resp_obj = requests.get(
-                    f'https://api.datafiniti.co/v4/downloads/{download_id}', 
-                    headers=self.request_headers
-                )
-                get_resp_json = get_resp_obj.json()
-                status = get_resp_json['status']
+        while status != 'completed' and get_attempts <= self.max_get_attempts:
+            get_resp_obj = requests.get(
+                f'https://api.datafiniti.co/v4/downloads/{download_id}', 
+                headers=self.request_headers
+            )
+            get_resp_json = get_resp_obj.json()
+            status = get_resp_json['status']
+            get_attempts += 1
+            
+        assert status == 'completed', (
+            'Could not retrieve the download url.'
+            f' Exceeded max get attempts: {self.max_get_attempts}'
+        )
 
         results = get_resp_json['results']
         return get_resp_json, results
-    
-    def _download_all_results_and_upload_to_s3(
-        self, results:list, download_id:str
-    ) -> None:
-        results_flattened = [i for sublist in results for i in sublist]
-        for i, res in enumerate(results_flattened):
-            self._download_results_locally(i, res, download_id)
-            # TODO: parse JSON
-            # TODO: upload results to s3
             
-    def _download_results_locally(
-        self, indexer:int, result:str, download_id:int
-    ) -> None:
-        result_filepath = self.data_path/f'{download_id}_{indexer}_recs.json'
+    def _download_result_locally(self, i:int, result:str) -> None:
+        result_filepath = self.data_path/'results_group'
         urllib.request.urlretrieve(result, result_filepath)
-        logger.info(f'result written to: {result_path}')
+        
+        # result_filepath will contain a file where each line contains a JSON 
+        # record. The following block writes each line in result_filepath
+        # into its own JSON file.
+        with open(result_filepath, 'r') as read_file:
+            for j, line in enumerate(read_file):
+                listing_filepath = (
+                    self.data_path/f'{self.json_listing_prefix}_{i}_{j}.json'
+                )
+                with open(listing_filepath, 'w') as write_file:
+                    write_file.write(line)
+        os.remove(result_filepath)
+        
+    def _parse_json_listings(self) -> pd.DataFrame:
+        json_listings = [
+            f for f in os.listdir(self.data_path) 
+            if f.startswith(self.json_listing_prefix) and f.endswith('.json')
+        ]
+        for l in json_listings:
+            self._parse_single_json_listing()
+        
+                
+        
             
