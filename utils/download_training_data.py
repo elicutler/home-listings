@@ -12,11 +12,13 @@ from pathlib import Path
 from logging_utils import set_logger_defaults
 from datafiniti_downloader import DatafinitiDownloader
 
+from pprint import pprint as pp
+
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 datafiniti_downloader = DatafinitiDownloader(1)
-datafiniti_downloader.download_data_and_upload_to_s3()
+post_out, get_out = datafiniti_downloader.download_data_and_upload_to_s3()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

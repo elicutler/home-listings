@@ -10,13 +10,26 @@ from pprint import pprint
 
 from credentials import DATAFINITI_API_TOKEN
 
-query = '''\
-    statuses.type:\"For Sale\" \
-    AND statuses.type:Sold \
-    AND prices.amountMin:* \
-    AND prices.amountMax:* \
-'''
+# query = '''\
+#     statuses.type:\"For Sale\" \
+#     AND statuses.type:Sold \
+#     AND prices.amountMin:* \
+#     AND prices.amountMax:* \
+# '''
 # query = 'features.value:\"Days on Market\"'
+query = '''\
+    statuses.type:\"For Sale\"\
+    AND statuses.type:Sold\
+    AND prices.amountMin:*\
+    AND prices.amountMax:*\
+    AND features:*\
+    AND descriptions.value:*\
+    AND features.key:\"Property History\"\
+    AND propertyType:(Home OR \"Multi-Family Dwelling\" OR \
+        \"Single Family Dwelling\" OR Townhouse)\
+    AND sourceURLs:redfin.com\
+    AND dateAdded:[2017-01-01 TO *]\
+'''
 num_records = 1
 download = True
 data_path = Path('../data')
@@ -39,11 +52,18 @@ post_req = requests.post(
 post_resp = post_req.json()
 download_id = post_resp['id']
 
-get_req = requests.get(
-    'https://api.datafiniti.co/v4/downloads/' + str(download_id),
-    headers=request_headers
-)
-download_resp = get_req.json() 
+class Test:
+    def get(self):
+        get_resp = requests.get(
+            f'https://api.datafiniti.co/v4/downloads/{download_id}',
+            headers=request_headers
+        )
+        get_resp_json = get_resp.json() 
+        breakpoint()
+        return get_resp_json
+test = Test()
+res = test.get()
+pp(res)
 
 result_list = download_resp['results']
 if len(result_list) == 1:
