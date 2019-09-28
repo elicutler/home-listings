@@ -21,11 +21,6 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 class DatafinitiDownloader:
-    '''
-    Download data from Datafiniti. 
-    public methods:
-        - download_data_and_upload_to_s3
-    '''
     
     data_path = Path('../data')
     json_listing_prefix = 'listing'
