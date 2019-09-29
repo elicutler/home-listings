@@ -22,6 +22,12 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 class DatafinitiDownloader:
+    '''
+    Download data from Datafiniti as JSON to local
+    machine and upload it to destinations.
+    
+    public methods:
+    '''
     
     data_path = Path('../data')
     json_listing_prefix = 'listing'

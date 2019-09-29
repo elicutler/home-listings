@@ -1,7 +1,8 @@
 
+import logging
 import json
 
-from Typing import Union
+from typing import Union
 from pathlib import Path
 from datetime import datetime
 from logging_utils import set_logger_defaults
@@ -10,13 +11,67 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 class JsonListingParser:
+    '''
+    Parse Datafiniti JSON blob to extract dictionary of attributes.
+    public methods:
+    '''
     
-    def __init__(self, json_file):
+    def __init__(self, json_file:Union[str, Path]):
         self.json_file = json_file
-        self.listing_attributes = {}
+        self.attributes = {}
         with open(json_file, 'r') as file:
             self.json_listing = json.load(json_file)
+    
+    @staticmethod
+    def clean_string(string:str) -> str:
+        cleaned_string = re.sub(r'^\W+|\W+$', '', string)
+        cleaned_string = re.sub(r'(?<!^)\W+|\W+(?=$)', '_', cleaned_string)
+        cleaned_string = cleaned_string.lower()
+        return cleaned_string
+
+    @staticmethod
+    def extract_price(string:str) -> int:
+        price_str = re.findall(r'(?<=\$)(\d+,\d+)', string)[0]
+        price = int(price_str.replace(',', ''))
+        return price
             
+    def get_listing_history(self) -> None:
+        first_listed_date = None
+        first_listed_price = None
+        first_sold_date = None
+        first_sold_price = None
+        
+        for i in range(len(self.json_listing['features'])):
+            if self.json_listing['features'][i]['key'] == 'Property History':
+                listings_with_price = [
+                    j for j in self.json_listing['features'][i]['value'] 
+                    if '$' in j
+                ]
+                for k in range(len(listings_with_price)):
+                    rec = listings_with_price[k]
+                    update_dt_str = re.findall(r'^.*?(?= \()', rec)[0]
+                    update_dt = datetime.strptime(
+                        update_dt_str, '%a %b %d %Y %H:%M:%S GMT%z'
+                    )
+                    price = extract_price(rec)
+                    if 'Sold' in rec:
+                        if first_sold_date is None \
+                        or update_dt < first_sold_date:
+                            first_sold_date = update_dt
+                            first_sold_price = price
+                            self.attributes['first_sold_date'] = first_sold_date
+                            self.attributes['first_sold_price'] = first_sold_price
+                    elif 'Listed' in rec:
+                        if first_listed_date is None \
+                        or update_dt < first_listed_date:
+                            first_listed_date = update_dt
+                            first_listed_price = price
+                            self.attributes['first_listed_date'] = first_listed_date
+                            self.attributes['first_listed_price'] = first_listed_price
+        
+        
+        
+        
 
     #TODO
 ################################################################################################
@@ -24,10 +79,10 @@ class JsonListingParser:
 # property history (list), which should contain one element with 
 # first listed date and first listed price, and another element with
 # closing date and closing price
-earliest_listed_date = None
-earliest_listed_price = None
-earliest_sold_date = None
-earliest_sold_price = None
+first_listed_date = None
+first_listed_price = None
+first_sold_date = None
+first_sold_price = None
 for i in range(len(sample['features'])):
     if sample['features'][i]['key'] == 'Property History':
         if 'value' in sample['features'][i].keys():
@@ -38,29 +93,29 @@ for i in range(len(sample['features'])):
                 update_dt = datetime.strptime(update_dt_str, '%a %b %d %Y %H:%M:%S GMT%z')
                 price = extract_price(rec)
                 if 'Sold' in rec:
-                    if earliest_sold_date is None or update_dt < earliest_sold_date:
-                        earliest_sold_date = update_dt
-                        earliest_sold_price = price
+                    if first_sold_date is None or update_dt < first_sold_date:
+                        first_sold_date = update_dt
+                        first_sold_price = price
                 elif 'Listed' in rec:
-                    if earliest_listed_date is None or update_dt < earliest_listed_date:
-                        earliest_listed_date = update_dt
-                        earliest_listed_price = price
+                    if first_listed_date is None or update_dt < first_listed_date:
+                        first_listed_date = update_dt
+                        first_listed_price = price
                 
                 print(datetime_str)
-                # TODO: get earliest
+                # TODO: get first
 
 
-# earliest description
-earliest_desc_date = None
-earliest_desc = None
+# first description
+first_desc_date = None
+first_desc = None
 if 'descriptions' in sample.keys():
     for i in range(len(sample['descriptions'])):
         if 'dateSeen' in sample['descriptions'][i].keys():
             date_seen_str = sample['descriptions'][i]['dateSeen']
             date_seen = datetime.strptime(date_seen_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-            if earliest_desc_date is None or date_seen < earliest_desc_date:
-                earliest_desc_date = date_seen
-                earliest_desc = sample['descriptions'][i]['value']
+            if first_desc_date is None or date_seen < first_desc_date:
+                first_desc_date = date_seen
+                first_desc = sample['descriptions'][i]['value']
 
             
 # first image
@@ -68,16 +123,16 @@ first_image = sample['imageURLs'][0]
 
 # other features
 
-def clean_string(string):
-    cleaned_string = re.sub(r'^\W+|\W+$', '', string)
-    cleaned_string = re.sub(r'(?<!^)\W+|\W+(?=$)', '_', cleaned_string)
-    cleaned_string = cleaned_string.lower()
-    return cleaned_string
+# def clean_string(string):
+#     cleaned_string = re.sub(r'^\W+|\W+$', '', string)
+#     cleaned_string = re.sub(r'(?<!^)\W+|\W+(?=$)', '_', cleaned_string)
+#     cleaned_string = cleaned_string.lower()
+#     return cleaned_string
 
-def extract_price(string):
-    price_str = re.findall(r'(?<=\$)(\d+,\d+)', string)[0]
-    price = int(price_str.replace(',', ''))
-    return price
+# def extract_price(string):
+#     price_str = re.findall(r'(?<=\$)(\d+,\d+)', string)[0]
+#     price = int(price_str.replace(',', ''))
+#     return price
 
 features = {}
 features['latitude'] = float(sample['latitude'])
