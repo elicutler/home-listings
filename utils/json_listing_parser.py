@@ -5,6 +5,7 @@ import json
 from typing import Union
 from pathlib import Path
 from datetime import datetime
+from functools import wraps
 from logging_utils import set_logger_defaults
 
 logger = logging.getLogger(__name__)
@@ -13,7 +14,6 @@ set_logger_defaults(logger)
 class JsonListingParser:
     '''
     Parse Datafiniti JSON blob to extract dictionary of attributes.
-    public methods:
     '''
     
     def __init__(self, json_file:Union[str, Path]):
@@ -59,15 +59,99 @@ class JsonListingParser:
                         or update_dt < first_sold_date:
                             first_sold_date = update_dt
                             first_sold_price = price
-                            self.attributes['first_sold_date'] = first_sold_date
-                            self.attributes['first_sold_price'] = first_sold_price
                     elif 'Listed' in rec:
                         if first_listed_date is None \
                         or update_dt < first_listed_date:
                             first_listed_date = update_dt
-                            first_listed_price = price
-                            self.attributes['first_listed_date'] = first_listed_date
-                            self.attributes['first_listed_price'] = first_listed_price
+                            first_listed_price = price   
+                            
+        self.attributes['first_sold_date'] = first_sold_date
+        self.attributes['first_sold_price'] = first_sold_price
+        self.attributes['first_listed_date'] = first_listed_date
+        self.attributes['first_listed_price'] = first_listed_price
+        
+    def get_first_description(self) -> None:
+        first_desc_date = None
+        first_desc = None
+        descriptions = self.json_listing['descriptions']
+        for i in range(len(descriptions)):
+            if 'dateSeen' in descriptions[i].keys():
+                date_seen_str = descriptions[i]['dateSeen']
+                date_seen = datetime.strptime(date_seen_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+                if first_desc_date is None or date_seen < first_desc_date:
+                    first_desc_date = date_seen
+                    first_desc = descriptions[i]['value']
+                    
+        self.attributes['first_desc_date'] = first_desc_date
+        self.attributes['first_desc'] = first_desc
+                    
+    def get_first_jpg_image(self) -> None:
+        jpg_image_links = [
+            i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
+        ]
+        self.attributes['first_jpg_image_link'] = jpg_image_links[0]
+        
+    def get_latitude(self) -> None:
+        self.attributes['latitude'] = float(self.json_listing['latitude'])
+        
+    def get_longitude(self) -> None:
+        self.attributes['longitude'] = float(self.json_listing['longitude'])
+        
+    def get_floor_size(self) -> None:
+        if re.search(r'sq.*(ft|feet)', self.json_listing['floorSizeUnit'], re.I):
+            floor_size = float(self.json_listing['floorSizeValue'])
+        self.attributes['floor_size'] = floor_size
+            
+    def get_lot_size(self) -> None:
+        if re.search(r'sq.*(ft|feet)', self.json_listing['lotSizeUnit'], re.I):
+            lot_size = float(self.json_listing['lotSizeValue'])
+        self.attributes['lot_size'] = lot_size
+        
+    def _loop_over_features_list(features:Union[list, tuple, str]) -> object:
+        features_grp = features if type(features) in [list, tuple] else [features]
+        def decorator(method):
+            @wraps(method)
+            def wrap_method(self):
+                for i in range(len(self.json_listing['features'])):
+                    feat_key = sample['features'][i]['key']
+                    feat_val = sample['features'][i]['value']
+                    if feat_key in features_grp:
+                        method(self, feat_key, feat_val)
+                        break
+            return wrapper 
+        return decorator
+    
+    @_loop_over_features_list(['built', 'year_built'])
+    def get_year_built(feat_key, feat_val):
+        self.attributes['year_built'] = int(feat_val[0])
+        
+    
+class A:
+    attributes = {}
+    def loop_over_features(feature):
+        actual_feature = feature
+        def decorator(func):
+            @wraps(func)
+            def wrapper(self):
+                for i in range(len(sample['features'])):
+                    sample_key = sample['features'][i]['key']
+                    sample_val = sample['features'][i]['value']
+                    print(sample_key)
+                    if sample_key == actual_feature:
+                        func(self, sample_key, sample_val)
+                        break
+            return wrapper 
+        return decorator
+
+    @loop_over_features('Built')
+    def get_year_built(self, k, v):
+        year_built = int(v[0])
+        self.attributes['year_built'] = year_built
+        print(self.attributes)
+a = A()
+a.get_year_built()
+    
+            
         
         
         
@@ -79,47 +163,46 @@ class JsonListingParser:
 # property history (list), which should contain one element with 
 # first listed date and first listed price, and another element with
 # closing date and closing price
-first_listed_date = None
-first_listed_price = None
-first_sold_date = None
-first_sold_price = None
-for i in range(len(sample['features'])):
-    if sample['features'][i]['key'] == 'Property History':
-        if 'value' in sample['features'][i].keys():
-            listings_with_price = [j for j in sample['features'][i]['value'] if '$' in j]
-            for k in range(len(listings_with_price)):
-                rec = listings_with_price[k]
-                update_dt_str = re.findall(r'^.*?(?= \()', rec)[0]
-                update_dt = datetime.strptime(update_dt_str, '%a %b %d %Y %H:%M:%S GMT%z')
-                price = extract_price(rec)
-                if 'Sold' in rec:
-                    if first_sold_date is None or update_dt < first_sold_date:
-                        first_sold_date = update_dt
-                        first_sold_price = price
-                elif 'Listed' in rec:
-                    if first_listed_date is None or update_dt < first_listed_date:
-                        first_listed_date = update_dt
-                        first_listed_price = price
+# first_listed_date = None
+# first_listed_price = None
+# first_sold_date = None
+# first_sold_price = None
+# for i in range(len(sample['features'])):
+#     if sample['features'][i]['key'] == 'Property History':
+#         if 'value' in sample['features'][i].keys():
+#             listings_with_price = [j for j in sample['features'][i]['value'] if '$' in j]
+#             for k in range(len(listings_with_price)):
+#                 rec = listings_with_price[k]
+#                 update_dt_str = re.findall(r'^.*?(?= \()', rec)[0]
+#                 update_dt = datetime.strptime(update_dt_str, '%a %b %d %Y %H:%M:%S GMT%z')
+#                 price = extract_price(rec)
+#                 if 'Sold' in rec:
+#                     if first_sold_date is None or update_dt < first_sold_date:
+#                         first_sold_date = update_dt
+#                         first_sold_price = price
+#                 elif 'Listed' in rec:
+#                     if first_listed_date is None or update_dt < first_listed_date:
+#                         first_listed_date = update_dt
+#                         first_listed_price = price
                 
-                print(datetime_str)
-                # TODO: get first
+#                 print(datetime_str)t
 
 
 # first description
-first_desc_date = None
-first_desc = None
-if 'descriptions' in sample.keys():
-    for i in range(len(sample['descriptions'])):
-        if 'dateSeen' in sample['descriptions'][i].keys():
-            date_seen_str = sample['descriptions'][i]['dateSeen']
-            date_seen = datetime.strptime(date_seen_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-            if first_desc_date is None or date_seen < first_desc_date:
-                first_desc_date = date_seen
-                first_desc = sample['descriptions'][i]['value']
+# first_desc_date = None
+# first_desc = None
+# if 'descriptions' in sample.keys():
+#     for i in range(len(sample['descriptions'])):
+#         if 'dateSeen' in sample['descriptions'][i].keys():
+#             date_seen_str = sample['descriptions'][i]['dateSeen']
+#             date_seen = datetime.strptime(date_seen_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+#             if first_desc_date is None or date_seen < first_desc_date:
+#                 first_desc_date = date_seen
+#                 first_desc = sample['descriptions'][i]['value']
 
             
-# first image
-first_image = sample['imageURLs'][0]
+# # first image
+# first_image = sample['imageURLs'][0]
 
 # other features
 

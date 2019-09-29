@@ -106,7 +106,7 @@ class DatafinitiDownloader:
             
         assert status == 'completed', (
             'Could not retrieve the download url.'
-            f' Exceeded max get attempts: {self.max_get_attempts}'
+            f' Exceeded max get time: {self.get_timeout_secs:,} seconds.'
         )
 
         results = get_resp_json['results']
