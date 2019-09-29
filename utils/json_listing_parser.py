@@ -152,13 +152,7 @@ class JsonListingParser:
 
         
   
-            
-        
 
-    if clean_string(sample_key) == 'rooms':
-        features['num_rooms'] = int(sample_value[0])
-    elif clean_string(sample_key) == 'room_information':
-        features['num_rooms'] = len(sample_value[1].split(','))
         
     if clean_string(sample_key) == 'cooling_system':
         features['cooling_system'] = clean_string(sample_value[0])
