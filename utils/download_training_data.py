@@ -25,30 +25,6 @@ from datetime import datetime
 with open('../data/0_0.json', 'r') as file:
     sample = json.load(file)
     
-class A:
-    attributes = {}
-    def loop_over_features(feature):
-        actual_feature = feature
-        def decorator(func):
-            @wraps(func)
-            def wrapper(self):
-                for i in range(len(sample['features'])):
-                    sample_key = sample['features'][i]['key']
-                    sample_val = sample['features'][i]['value']
-                    print(sample_key)
-                    if sample_key == actual_feature:
-                        func(self, sample_key, sample_val)
-                        break
-            return wrapper 
-        return decorator
-
-    @loop_over_features('Built')
-    def get_year_built(self, k, v):
-        year_built = int(v[0])
-        self.attributes['year_built'] = year_built
-        print(self.attributes)
-a = A()
-a.get_year_built()
 
 
 
