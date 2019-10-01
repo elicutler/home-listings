@@ -32,7 +32,7 @@ class JsonListingParser:
         self.attributes = {a: None for a in self.all_attributes}
         
         with open(json_file, 'r') as file:
-            self.json_listing = json.load(json_file)
+            self.json_listing = json.load(file)
     
     @staticmethod
     def clean_string(string:str) -> str:
@@ -47,7 +47,7 @@ class JsonListingParser:
         price = int(price_str.replace(',', ''))
         return price
             
-    def get_listing_history(self) -> None:
+    def set_listing_history(self) -> None:
         first_listed_date = None
         first_listed_price = None
         first_sold_date = None
@@ -82,7 +82,7 @@ class JsonListingParser:
         self.attributes['first_listed_date'] = first_listed_date
         self.attributes['first_listed_price'] = first_listed_price
         
-    def get_first_description(self) -> None:
+    def set_first_description(self) -> None:
         first_desc_date = None
         first_desc = None
         descriptions = self.json_listing['descriptions']
@@ -97,24 +97,24 @@ class JsonListingParser:
         self.attributes['first_desc_date'] = first_desc_date
         self.attributes['first_desc'] = first_desc
                     
-    def get_first_jpg_image(self) -> None:
+    def set_first_jpg_image(self) -> None:
         jpg_image_links = [
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         self.attributes['first_jpg_image_link'] = jpg_image_links[0]
         
-    def get_latitude(self) -> None:
+    def set_latitude(self) -> None:
         self.attributes['latitude'] = float(self.json_listing['latitude'])
         
-    def get_longitude(self) -> None:
+    def set_longitude(self) -> None:
         self.attributes['longitude'] = float(self.json_listing['longitude'])
         
-    def get_floor_size(self) -> None:
+    def set_floor_size(self) -> None:
         if re.search(r'sq.*(ft|feet)', self.json_listing['floorSizeUnit'], re.I):
             floor_size = float(self.json_listing['floorSizeValue'])
         self.attributes['floor_size'] = floor_size
             
-    def get_lot_size(self) -> None:
+    def set_lot_size(self) -> None:
         if re.search(r'sq.*(ft|feet)', self.json_listing['lotSizeUnit'], re.I):
             lot_size = float(self.json_listing['lotSizeValue'])
         self.attributes['lot_size'] = lot_size
@@ -142,21 +142,21 @@ class JsonListingParser:
         return decorator
     
     @_loop_over_features_list(['built', 'year_built'])
-    def get_year_built(feat_val:str) -> None:
+    def set_year_built(feat_val:str) -> None:
         self.attributes['year_built'] = int(feat_val[0])
         
     @_loop_over_features_list('exterior')
-    def get_exterior(feat_val:str) -> None:
+    def set_exterior(feat_val:str) -> None:
         self.attributes['exterior'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('heating_fuel')
-    def get_heating_fuel(feat_val:str) -> None:
+    def set_heating_fuel(feat_val:str) -> None:
         self.attributes['heating_fuel'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list(
         ['rooms', 'room_information'], mode='check_key_pass_key_and_val'
     )
-    def get_num_rooms(feat_val:str, feat_key:str) -> None:
+    def set_num_rooms(feat_val:str, feat_key:str) -> None:
         if self.clean_string(feat_key) == 'rooms':
             num_rooms = self.clean_string(feat_val[0])
         elif self.clean_string(feat_key) == 'room_information':
@@ -164,23 +164,23 @@ class JsonListingParser:
         self.attributes['num_rooms'] = num_rooms
         
     @_loop_over_features_list('cooling_system')
-    def get_cooling_system(feat_val:str) -> None:
+    def set_cooling_system(feat_val:str) -> None:
         self.attributes['cooling_system'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('taxable_value')
-    def get_land_value(feat_val:str) -> None:
+    def set_land_value(feat_val:str) -> None:
         for i in range(len(feat_val)):
             if 'land' in clean_string(feat_val[i]):
                 self.attributes['land_value'] = self.extract_price(feat_val[i])
                 
     @_loop_over_features_list('taxable_value')
-    def get_additions_value(feat_val:str) -> None:
+    def set_additions_value(feat_val:str) -> None:
         for i in range(len(feat_val)):
             if 'additions' in clean_string(feat_val[i]):
                 self.attributes['additions_value'] = self.extract_price(feat_val[i])
                 
     @_loop_over_features_list('building_information')
-    def get_foundation_details(feat_val:str) -> None:
+    def set_foundation_details(feat_val:str) -> None:
         for i in range(len(feat_val)):
             if 'foundation_details' in self.clean_string(feat_val[i]):
                 self.attributes['foundation_details'] = (
@@ -188,30 +188,30 @@ class JsonListingParser:
                 )
         
     @_loop_over_features_list('roof')
-    def get_roof_material(feat_val:str) -> None:
+    def set_roof_material(feat_val:str) -> None:
         self.attributes['roof_material'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('style')
-    def get_style(feat_val:str) -> None:
+    def set_style(feat_val:str) -> None:
         self.attributes['style'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('parking_spaces')
-    def get_parking_spaces(feat_val:str) -> None:
+    def set_parking_spaces(feat_val:str) -> None:
         self.attributes['parking_spaces'] = int(feat_val[0])
         
     @_loop_over_features_list('heating_type')
-    def get_heating_type(feat_val:str) -> None:
+    def set_heating_type(feat_val:str) -> None:
         self.attributes['heating_type'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('real_estate_sales')
-    def get_median_list_price(feat_val:str) -> None:
+    def set_median_list_price(feat_val:str) -> None:
         zip_homes_info = [self.clean_string(i) for i in feat_val]
         for j in range(len(zip_homes_info)):
             if 'median_list_price' in zip_homes_info[i]:
                 self.attributes['median_list_price'] = self.extract_price(feat_val)
                 
     @_loop_over_features_list('real_estate_sales')
-    def get_median_sale_list_price_ratio(feat_val:str) -> None:
+    def set_median_sale_list_price_ratio(feat_val:str) -> None:
         zip_homes_info = [self.clean_string(i) for i in feat_val]
         for j in range(len(zip_homes_info)):
             if 'median_sale_list' in zip_homes_info[i]:
@@ -223,5 +223,151 @@ class JsonListingParser:
                 )
                 self.attributes['median_sale_list_price_ratio'] = median_sale_list_price_ratio
         
-        
-parser = JsonListingParser('../data/0_0.json')
+    def set_all_attributes(self, raise_exception:bool=False) -> None:
+        try:
+            self.set_listing_history()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_listing_history()')
+        try:
+            self.set_first_description()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_first_description()')
+        try:
+            self.set_first_jpg_image()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_first_jpg_image()')
+        try:
+            self.set_latitude()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_latitude()')
+        try:
+            self.set_longitude()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_longitude()')
+        try:
+            self.set_floor_size()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_floor_size()')
+        try:
+            self.set_lot_size()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_lot_size()')
+        try:
+            self.set_year_built()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_year_built()')
+        try:
+            self.set_exterior()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_exterior()')
+        try:
+            self.set_heating_fuel()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_heating_fuel()')
+        try:
+            self.set_num_rooms()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_num_rooms()')
+        try:
+            self.set_cooling_system()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_cooling_system()')
+        try:
+            self.set_land_value()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_land_value()')
+        try:
+            self.set_additions_value()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_additions_value()')
+        try:
+            self.set_foundation_details()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_foundation_details()')
+        try:
+            self.set_roof_material()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_roof_material()')
+        try:
+            self.set_style()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_style()')
+        try:
+            self.set_parking_spaces()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_parking_spaces()')
+        try:
+            self.set_heating_type()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_heating_type()')
+        try:
+            self.set_median_list_price()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_median_list_price()')
+        try:
+            self.set_median_sale_list_price_ratio()
+        except:
+            if raise_exception:
+                raise
+            else:
+                logger.warning('Could not execute set_median_sale_list_price_ratio()')
