@@ -4,6 +4,7 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=main
   - _pytorch_select=0.2=gpu_0
+  - asn1crypto=0.24.0=py37_0
   - attrs=19.1.0=py37_1
   - backcall=0.1.0=py37_0
   - blas=1.0=mkl
@@ -11,12 +12,18 @@ dependencies:
   - ca-certificates=2019.8.28=0
   - certifi=2019.9.11=py37_0
   - cffi=1.12.3=py37h2e261b9_0
+  - chardet=3.0.4=py37_1003
+  - cryptography=2.7=py37h1ba5d50_0
   - cudatoolkit=10.0.130=0
   - cudnn=7.6.0=cuda10.0_0
+  - cymem=1.31.2=py37h6bb024c_0
+  - cytoolz=0.9.0.1=py37h14c3975_1
   - decorator=4.4.0=py37_1
   - defusedxml=0.6.0=py_0
+  - dill=0.2.9=py37_0
   - entrypoints=0.3=py37_0
   - gmp=6.1.2=h6c8ec71_1
+  - idna=2.8=py37_0
   - intel-openmp=2019.4=243
   - ipykernel=5.1.2=py37h39e3cac_0
   - ipython=7.8.0=py37h39e3cac_0
@@ -38,6 +45,9 @@ dependencies:
   - mkl-service=2.3.0=py37he904b0f_0
   - mkl_fft=1.0.14=py37ha843d7b_0
   - mkl_random=1.1.0=py37hd6b4f25_0
+  - msgpack-numpy=0.4.4.3=py_0
+  - msgpack-python=0.5.6=py37h6bb024c_1
+  - murmurhash=0.28.0=py37hf484d3e_0
   - nb_conda_kernels=2.2.2=py37_0
   - nbconvert=5.6.0=py37_1
   - nbformat=4.4.0=py37_0
@@ -54,38 +64,49 @@ dependencies:
   - pexpect=4.7.0=py37_0
   - pickleshare=0.7.5=py37_0
   - pip=19.2.3=py37_0
+  - plac=0.9.6=py37_0
+  - preshed=1.0.1=py37he6710b0_0
   - prometheus_client=0.7.1=py_0
   - prompt_toolkit=2.0.9=py37_0
   - ptyprocess=0.6.0=py37_0
   - pycparser=2.19=py37_0
   - pygments=2.4.2=py_0
+  - pyopenssl=19.0.0=py37_0
   - pyrsistent=0.15.4=py37h7b6447c_0
+  - pysocks=1.7.1=py37_0
   - python=3.7.4=h265db76_1
   - python-dateutil=2.8.0=py37_0
   - pytorch=1.2.0=cuda100py37h938c94c_0
   - pytz=2019.2=py_0
   - pyzmq=18.1.0=py37he6710b0_0
   - readline=7.0=h7b6447c_5
+  - regex=2018.07.11=py37h14c3975_0
+  - requests=2.22.0=py37_0
   - send2trash=1.5.0=py37_0
   - setuptools=41.2.0=py37_0
   - six=1.12.0=py37_0
+  - spacy=2.0.12=py37h962f231_0
   - sqlite=3.29.0=h7b6447c_0
+  - termcolor=1.1.0=py37_1
   - terminado=0.8.2=py37_0
   - testpath=0.4.2=py37_0
+  - thinc=6.10.3=py37h962f231_0
   - tk=8.6.8=hbc83047_0
+  - toolz=0.10.0=py_0
   - tornado=6.0.3=py37h7b6447c_0
+  - tqdm=4.36.1=py_0
   - traitlets=4.3.2=py37_0
+  - ujson=1.35=py37h14c3975_0
+  - urllib3=1.24.2=py37_0
   - wcwidth=0.1.7=py37_0
   - webencodings=0.5.1=py37_1
   - wheel=0.33.6=py37_0
+  - wrapt=1.10.11=py37h14c3975_2
   - xz=5.2.4=h14c3975_4
   - zeromq=4.3.1=he6710b0_3
   - zlib=1.2.11=h7b6447c_3
   - pip:
-    - chardet==3.0.4
-    - idna==2.8
-    - requests==2.22.0
+    - msgpack==0.5.6
     - torch==1.2.0
-    - urllib3==1.25.6
 prefix: /home/ec2-user/anaconda3/envs/home-listings
 

@@ -22,8 +22,6 @@ from pprint import pprint as pp
 import json
 from datetime import datetime
 
-with open('../data/0_0.json', 'r') as file:
-    sample = json.load(file)
     
 
 

@@ -95,20 +95,21 @@ class DatafinitiDownloader:
         elapsed_time = 0
         start_time = time.time()
         
-        while status != 'completed' and elapsed_time <= self.get_timeout_secs:
+        while status != 'completed':
             get_resp_obj = requests.get(
                 f'https://api.datafiniti.co/v4/downloads/{download_id}', 
                 headers=self.request_headers
             )
             get_resp_json = get_resp_obj.json()
             status = get_resp_json['status']
-            elapsed_time = time.time() - start_time
             
-        assert status == 'completed', (
-            'Could not retrieve the download url.'
-            f' Exceeded max get time: {self.get_timeout_secs:,} seconds.'
-        )
-
+            elapsed_time = time.time() - start_time
+            if elapsed_time > self.get_timeout_secs:
+                raise Exception(
+                    'Could not retrieve the download url.'
+                    f' Exceeded max get time: {self.get_timeout_secs:,} seconds.'
+                )
+            
         results = get_resp_json['results']
         return get_resp_json, results
             
@@ -134,9 +135,10 @@ class DatafinitiDownloader:
             if f.startswith(self.json_listing_prefix) and f.endswith('.json')
         ]
         for f in json_listings:
-            json_listing_parser = JsonListingParser(f)
-            # TODO
-
+            json_listing_path = self.data_path/f
+            json_listing_parser = JsonListingParser(json_listing_path)
+            json_listing_parser.set_all_attributes()
+            print(json_listing_parser.attributes)
                         
 
     
