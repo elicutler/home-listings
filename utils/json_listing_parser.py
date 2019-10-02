@@ -1,6 +1,7 @@
 
 import logging
 import json
+import re
 
 from typing import Union
 from pathlib import Path
@@ -16,20 +17,9 @@ class JsonListingParser:
     Parse Datafiniti JSON blob to extract dictionary of attributes.
     '''
     
-    def __init__(
-        self, json_file:Union[str, Path], all_attributes:list=[
-            'first_sold_date', 'first_sold_price', 'first_listed_date',
-            'first_listed_price', 'first_desc_date', 'first_desc',
-            'first_jpg_image_link', 'latitude', 'longitude', 'floor_size',
-            'lot_size', 'year_built', 'exterior', 'heating_fuel', 'num_rooms',
-            'cooling_system', 'land_value', 'additions_value', 'foundation_details',
-            'roof_material', 'style', 'parking_spaces', 'heating_type',
-            'median_list_price', 'median_sale_list_price_ratio'
-        ]
-    ):
+    def __init__(self, json_file:Union[str, Path]):
         self.json_file = json_file
-        self.all_attributes = all_attributes
-        self.attributes = {a: None for a in self.all_attributes}
+        self.attributes = {}
         
         with open(json_file, 'r') as file:
             self.json_listing = json.load(file)
@@ -65,7 +55,7 @@ class JsonListingParser:
                     update_dt = datetime.strptime(
                         update_dt_str, '%a %b %d %Y %H:%M:%S GMT%z'
                     )
-                    price = extract_price(rec)
+                    price = self.extract_price(rec)
                     if 'Sold' in rec:
                         if first_sold_date is None \
                         or update_dt < first_sold_date:
@@ -127,8 +117,8 @@ class JsonListingParser:
             @wraps(method)
             def wrap_method(self):
                 for i in range(len(self.json_listing['features'])):
-                    feat_key = sample['features'][i]['key']
-                    feat_val = sample['features'][i]['value']
+                    feat_key = self.json_listing['features'][i]['key']
+                    feat_val = self.json_listing['features'][i]['value']
                     
                     if mode == 'check_key_pass_val_only':
                         if self.clean_string(feat_key) in features_grp:
@@ -142,45 +132,45 @@ class JsonListingParser:
         return decorator
     
     @_loop_over_features_list(['built', 'year_built'])
-    def set_year_built(feat_val:str) -> None:
+    def set_year_built(self, feat_val:str) -> None:
         self.attributes['year_built'] = int(feat_val[0])
         
     @_loop_over_features_list('exterior')
-    def set_exterior(feat_val:str) -> None:
+    def set_exterior(self, feat_val:str) -> None:
         self.attributes['exterior'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('heating_fuel')
-    def set_heating_fuel(feat_val:str) -> None:
+    def set_heating_fuel(self, feat_val:str) -> None:
         self.attributes['heating_fuel'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list(
         ['rooms', 'room_information'], mode='check_key_pass_key_and_val'
     )
-    def set_num_rooms(feat_val:str, feat_key:str) -> None:
+    def set_num_rooms(self, feat_val:str, feat_key:str) -> None:
         if self.clean_string(feat_key) == 'rooms':
             num_rooms = self.clean_string(feat_val[0])
         elif self.clean_string(feat_key) == 'room_information':
-            num_rooms = len(sample_value[1].split(','))
+            num_rooms = len(feat_val[1].split(','))
         self.attributes['num_rooms'] = num_rooms
         
     @_loop_over_features_list('cooling_system')
-    def set_cooling_system(feat_val:str) -> None:
+    def set_cooling_system(self, feat_val:str) -> None:
         self.attributes['cooling_system'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('taxable_value')
-    def set_land_value(feat_val:str) -> None:
+    def set_land_value(self, feat_val:str) -> None:
         for i in range(len(feat_val)):
-            if 'land' in clean_string(feat_val[i]):
+            if 'land' in self.clean_string(feat_val[i]):
                 self.attributes['land_value'] = self.extract_price(feat_val[i])
                 
     @_loop_over_features_list('taxable_value')
-    def set_additions_value(feat_val:str) -> None:
+    def set_additions_value(self, feat_val:str) -> None:
         for i in range(len(feat_val)):
-            if 'additions' in clean_string(feat_val[i]):
+            if 'additions' in self.clean_string(feat_val[i]):
                 self.attributes['additions_value'] = self.extract_price(feat_val[i])
                 
     @_loop_over_features_list('building_information')
-    def set_foundation_details(feat_val:str) -> None:
+    def set_foundation_details(self, feat_val:str) -> None:
         for i in range(len(feat_val)):
             if 'foundation_details' in self.clean_string(feat_val[i]):
                 self.attributes['foundation_details'] = (
@@ -188,30 +178,30 @@ class JsonListingParser:
                 )
         
     @_loop_over_features_list('roof')
-    def set_roof_material(feat_val:str) -> None:
+    def set_roof_material(self, feat_val:str) -> None:
         self.attributes['roof_material'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('style')
-    def set_style(feat_val:str) -> None:
+    def set_style(self, feat_val:str) -> None:
         self.attributes['style'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('parking_spaces')
-    def set_parking_spaces(feat_val:str) -> None:
+    def set_parking_spaces(self, feat_val:str) -> None:
         self.attributes['parking_spaces'] = int(feat_val[0])
         
     @_loop_over_features_list('heating_type')
-    def set_heating_type(feat_val:str) -> None:
+    def set_heating_type(self, feat_val:str) -> None:
         self.attributes['heating_type'] = self.clean_string(feat_val[0])
         
     @_loop_over_features_list('real_estate_sales')
-    def set_median_list_price(feat_val:str) -> None:
+    def set_median_list_price(self, feat_val:str) -> None:
         zip_homes_info = [self.clean_string(i) for i in feat_val]
         for j in range(len(zip_homes_info)):
             if 'median_list_price' in zip_homes_info[i]:
                 self.attributes['median_list_price'] = self.extract_price(feat_val)
                 
     @_loop_over_features_list('real_estate_sales')
-    def set_median_sale_list_price_ratio(feat_val:str) -> None:
+    def set_median_sale_list_price_ratio(self, feat_val:str) -> None:
         zip_homes_info = [self.clean_string(i) for i in feat_val]
         for j in range(len(zip_homes_info)):
             if 'median_sale_list' in zip_homes_info[i]:
@@ -371,3 +361,4 @@ class JsonListingParser:
                 raise
             else:
                 logger.warning('Could not execute set_median_sale_list_price_ratio()')
+
