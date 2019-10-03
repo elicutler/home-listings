@@ -15,7 +15,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Union, Tuple, Optional
 from credentials import DATAFINITI_API_TOKEN
-from logging_utils import set_logger_defaults
+from gen_utils import set_logger_defaults
 from json_listing_parser import JsonListingParser
 
 logger = logging.getLogger(__name__)

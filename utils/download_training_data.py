@@ -9,7 +9,7 @@ import argparse
 import sys; sys.path.insert(0, '..')
 
 from pathlib import Path
-from logging_utils import set_logger_defaults
+from gen_utils import set_logger_defaults
 from datafiniti_downloader import DatafinitiDownloader
 
 logger = logging.getLogger(__name__)

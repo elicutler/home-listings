@@ -7,7 +7,7 @@ from typing import Union
 from pathlib import Path
 from datetime import datetime
 from functools import wraps
-from logging_utils import set_logger_defaults
+from gen_utils import set_logger_defaults
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -87,11 +87,14 @@ class JsonListingParser:
         self.attributes['first_desc_date'] = first_desc_date
         self.attributes['first_desc'] = first_desc
                     
-    def set_first_jpg_image(self) -> None:
+    def set_first_jpg_image_link(self) -> None:
         jpg_image_links = [
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         self.attributes['first_jpg_image_link'] = jpg_image_links[0]
+        
+    def set_first_image(self) -> None:
+        self.attributes['first_jpg_image'] = None
         
     def set_latitude(self) -> None:
         self.attributes['latitude'] = float(self.json_listing['latitude'])

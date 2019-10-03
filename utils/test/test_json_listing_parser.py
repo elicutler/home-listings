@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, '..')
 sys.path.insert(0, '../..')
 
-from logging_utils import set_logger_defaults
+from gen_utils import set_logger_defaults
 from json_listing_parser import JsonListingParser
 
 logger = logging.getLogger(__name__)
@@ -39,8 +39,8 @@ class TestJsonListingParser(unittest.TestCase):
         self.assertIsInstance(self.json_listing_parser.attributes['first_desc'], str)
         self.assertGreater(len(self.json_listing_parser.attributes['first_desc']), 0)
     
-    def test_set_first_jpg_image(self):
-        self.json_listing_parser.set_first_jpg_image()
+    def test_set_first_jpg_image_link(self):
+        self.json_listing_parser.set_first_jpg_image_link()
         self.assertIsInstance(
             self.json_listing_parser.attributes['first_jpg_image_link'], str
         )
