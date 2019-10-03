@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 datafiniti_downloader = DatafinitiDownloader(2)
-datafiniti_downloader.upload_results_to_s3()
+datafiniti_downloader.download_results_locally()
 
 from pprint import pprint as pp
 import json

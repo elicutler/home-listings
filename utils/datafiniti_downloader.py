@@ -15,7 +15,9 @@ import pandas as pd
 from pathlib import Path
 from typing import Union, Tuple, Optional
 from credentials import DATAFINITI_API_TOKEN
-from gen_utils import set_logger_defaults
+from gen_utils import (
+    set_logger_defaults, get_unique_id, COLUMN_ORDER, check_columns_integrity
+)
 from json_listing_parser import JsonListingParser
 
 logger = logging.getLogger(__name__)
@@ -74,12 +76,39 @@ class DatafinitiDownloader:
             query = self.sold_homes_query
         return query
     
-    def upload_results_to_s3(self) -> None:
+    def download_results_locally(self) -> None:
+        all_listings_dict = {}
+        results = self._download_data()
+        
+        for res in results:
+            result_filepath = self.data_path/'results_group.txt'
+            urllib.request.urlretrieve(res, result_filepath)
+            
+            self._unpack_to_json_files(result_filepath)
+            os.remove(result_filepath)
+            
+            json_listings = [
+                f for f in os.listdir(self.data_path) 
+                if f.startswith(self.json_listing_prefix) and f.endswith('.json')
+            ]
+            for f in json_listings:
+                stem = Path(f).stem
+                listing_dict = self._parse_json_listing(f)
+                all_listings_dict.update({stem: listing_dict}) 
+        
+        all_listings_frame = pd.DataFrame(all_listings_dict).transpose()
+        check_columns_integrity(all_listings_frame.columns)
+        all_listings_frame = all_listings_frame[COLUMN_ORDER]
+        
+        data_id = get_unique_id(str)
+        all_listings_frame.to_csv(
+            f'../data/listings_{data_id}', header=False, index=False
+        )
+                
+    def _download_data(self) -> list:
         post_resp_json, download_id = self._send_post_req()
         get_resp_json, results = self._send_get_req(download_id)
-        for i, r in enumerate(results):
-            self._download_result_locally(i, r)
-            listings = self._parse_json_listings()
+        return results
     
     def _send_post_req(self) -> Tuple[Union[list, dict], int]:
         post_resp_obj = requests.post(
@@ -113,32 +142,23 @@ class DatafinitiDownloader:
         results = get_resp_json['results']
         return get_resp_json, results
             
-    def _download_result_locally(self, i:int, result:str) -> None:
-        result_filepath = self.data_path/'results_group'
-        urllib.request.urlretrieve(result, result_filepath)
-        
+    def _unpack_to_json_files(self, result_filepath:Union[str, Path]) -> None:
         # result_filepath will contain a file where each line contains a JSON 
-        # record. The following block writes each line in result_filepath
-        # into its own JSON file.
+        # record, but as a whole the file is not valid JSON. The following
+        # block writes each line in into its own - valid - JSON file.
         with open(result_filepath, 'r') as read_file:
-            for j, line in enumerate(read_file):
-                listing_filepath = (
-                    self.data_path/f'{self.json_listing_prefix}_{i}_{j}.json'
-                )
+            for line in read_file:
+                file_id = get_unique_id(str)
+                listing_filepath = self.data_path/f'{self.json_listing_prefix}_{file_id}.json'
+                
                 with open(listing_filepath, 'w') as write_file:
                     write_file.write(line)
-        os.remove(result_filepath)
         
-    def _parse_json_listings(self) -> pd.DataFrame:
-        json_listings = [
-            f for f in os.listdir(self.data_path) 
-            if f.startswith(self.json_listing_prefix) and f.endswith('.json')
-        ]
-        for f in json_listings:
-            json_listing_path = self.data_path/f
-            json_listing_parser = JsonListingParser(json_listing_path)
-            json_listing_parser.set_all_attributes()
-            print(json_listing_parser.attributes)
+    def _parse_json_listing(self, filepath:Union[str, Path]) -> dict:
+        json_listing_path = self.data_path/filepath
+        json_listing_parser = JsonListingParser(json_listing_path)
+        json_listing_parser.set_all_attributes()
+        return json_listing_parser.attributes
                         
 
     
