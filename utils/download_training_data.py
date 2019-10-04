@@ -19,6 +19,9 @@ set_logger_defaults(logger)
 datafiniti_downloader = DatafinitiDownloader(2)
 datafiniti_downloader.download_results_as_local_csv()
 
+role = sagemaker.get_execution_role()
+session = sagemaker.Session()
+
 
 
 if __name__ == '__main__':
