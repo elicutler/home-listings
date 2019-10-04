@@ -2,6 +2,7 @@
 import logging
 import json
 import re
+import urllib.request
 
 from typing import Union
 from pathlib import Path
@@ -95,9 +96,6 @@ class JsonListingParser:
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         self.attributes['first_jpg_image_link'] = jpg_image_links[0]
-        
-    def set_first_image(self) -> None:
-        self.attributes['first_jpg_image'] = None
         
     def set_latitude(self) -> None:
         self.attributes['latitude'] = float(self.json_listing['latitude'])
@@ -239,7 +237,7 @@ class JsonListingParser:
             else:
                 logger.warning('Could not execute set_first_description()')
         try:
-            self.set_first_jpg_image()
+            self.set_first_jpg_image_link()
         except:
             if raise_exception:
                 raise

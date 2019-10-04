@@ -31,6 +31,7 @@ def set_logger_defaults(
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
+
 def get_unique_id(
     id_type:type, offset_base:Union[int, str]=2019
 ) -> Union[int, str]:

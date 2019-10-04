@@ -46,9 +46,6 @@ class TestJsonListingParser(unittest.TestCase):
     
     def test_set_first_jpg_image_link(self):
         self.json_listing_parser.set_first_jpg_image_link()
-        self.assertIsInstance(
-            self.json_listing_parser.attributes['first_jpg_image_link'], str
-        )
         self.assertTrue(
             self.json_listing_parser.attributes['first_jpg_image_link'].endswith('.jpg')
         )
