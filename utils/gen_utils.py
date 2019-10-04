@@ -60,7 +60,17 @@ def put_columns_in_order(in_df:pd.DataFrame) -> pd.DataFrame:
     df = df[COLUMN_ORDER]
     return df
 
+
 def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
     df = in_df.copy()
     df = df[df[col].notna()]
     return df
+
+
+def upload_to_s3() -> None:
+    s3_prefix = 'home-listings'
+
+prefix = 'boston-xgboost-deploy-hl'
+
+val_location = session.upload_data(os.path.join(data_dir, 'validation.csv'), key_prefix=prefix)
+train_location = session.upload_data(os.path.join(data_dir, 'train.csv'), key_prefix=prefix)

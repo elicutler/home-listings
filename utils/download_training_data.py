@@ -7,6 +7,7 @@ Data formatted in JSON.
 import logging
 import argparse
 import sys; sys.path.insert(0, '..')
+import sagemaker
 
 from pathlib import Path
 from gen_utils import set_logger_defaults

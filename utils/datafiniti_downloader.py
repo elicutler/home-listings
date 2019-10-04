@@ -27,8 +27,6 @@ class DatafinitiDownloader:
     '''
     Download data from Datafiniti as JSON to local
     machine and upload it to destinations.
-    
-    public methods:
     '''
     
     data_path = Path('../data')
@@ -46,6 +44,7 @@ class DatafinitiDownloader:
             \"Single Family Dwelling\" OR Townhouse)\
         AND sourceURLs:redfin.com\
         AND dateAdded:[2017-01-01 TO *]\
+        AND id:*\
     '''
     
     def __init__(
@@ -97,7 +96,7 @@ class DatafinitiDownloader:
         
         all_listings_frame = pd.DataFrame(all_listings_dict).transpose()
         listings_frame_ordered = put_columns_in_order(all_listings_frame)
-        listings_frame_w_id = filter_df_missing_col(listing_frame_ordered, 'id')
+        listings_frame_w_id = filter_df_missing_col(listings_frame_ordered, 'id')
         
         data_id = get_unique_id(str)
         listings_frame_w_id.to_csv(
