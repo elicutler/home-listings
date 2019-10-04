@@ -1,9 +1,12 @@
 
+import sys; sys.path.insert(0, '.')
 import logging
+import pandas as pd
+import numpy as np
 
 from typing import Union, Any
-from pandas.core.indexes.base import Index
 from datetime import datetime
+from constants import COLUMN_ORDER
 
 def set_logger_defaults(
     logger:logging.Logger, level:int=logging.INFO, addFileHandler:bool=False
@@ -25,6 +28,8 @@ def set_logger_defaults(
     logger.addHandler(streamHandler)
     logger.addHandler(fileHandler) if addFileHandler else None
     
+logger = logging.getLogger(__name__)
+set_logger_defaults(logger)
 
 def get_unique_id(
     id_type:type, offset_base:Union[int, str]=2019
@@ -35,15 +40,26 @@ def get_unique_id(
     return unique_id 
 
 
-COLUMN_ORDER = [
-    'first_sold_date', 'first_sold_price', 'first_listed_date', 'first_listed_price',
-    'first_desc_date', 'first_desc', 'latitude', 'longitude', 'floor_size', 
-    'year_built', 'exterior', 'num_rooms', 'land_value', 'roof_material', 'style',
-    'lot_size', 'additions_value', 'heating_fuel'
-]
+def put_columns_in_order(in_df:pd.DataFrame) -> pd.DataFrame:
+    df = in_df.copy()
+    
+    assert len(df.columns) == len(set(df.columns)), 'df contains duplicate columns'
+    assert len(COLUMN_ORDER) == len(set(COLUMN_ORDER)), 'COLUMN_ORDER contains duplicate columns' 
+    assert len(set(df.columns) - set(COLUMN_ORDER)) == 0, 'df contains columns not in COLUMN_ORDER'
+    
+    if len(set(COLUMN_ORDER) - set(df.columns)) > 0:
+        missing_cols = list(set(COLUMN_ORDER) - set(df.columns))
+        logger.warning(
+            'The following cols in COLUMN_ORDER are missing from df'
+            f' and will be added: {missing_cols}'
+        )
+        for col in missing_cols:
+            df[col] = np.nan
+            
+    df = df[COLUMN_ORDER]
+    return df
 
-
-def check_columns_integrity(columns:Union[set, Index, list, tuple]) -> None:
-    assert (
-        set(columns).intersection(COLUMN_ORDER) == set(columns).union(COLUMN_ORDER)
-    ), f'Input columns do not match columns in COLUMN_ORDER'
+def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
+    df = in_df.copy()
+    df = df[df[col].notna()]
+    return df

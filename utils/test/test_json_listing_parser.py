@@ -17,6 +17,11 @@ class TestJsonListingParser(unittest.TestCase):
     def setUp(self):
         self.json_listing_parser = JsonListingParser('../../data/test/0_0.json')
 
+    def test_set_id(self):
+        self.json_listing_parser.set_id()
+        self.assertEqual(
+            self.json_listing_parser.attributes['id'], 'AWuh3x3T0x_BgD4eD3hX'
+        )
     def test_set_listing_history(self):
         self.json_listing_parser.set_listing_history()
         self.assertEqual(

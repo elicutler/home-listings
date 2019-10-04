@@ -1,7 +1,7 @@
 '''
-Defines DatafinitiDownloader class, which downloads data from Datafiniti via API call and uploads it to S3.
-Requires DATAFINITI_API_TOKEN in ..credentials.py (not in repo).
-Data formatted in JSON.
+Defines DatafinitiDownloader class, which downloads data from Datafiniti via 
+API call and uploads it to S3. Requires DATAFINITI_API_TOKEN in 
+..credentials.py (not in repo). Data formatted in JSON.
 '''
 
 import logging
@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Union, Tuple, Optional
 from credentials import DATAFINITI_API_TOKEN
 from gen_utils import (
-    set_logger_defaults, get_unique_id, COLUMN_ORDER, check_columns_integrity
+    set_logger_defaults, get_unique_id, put_columns_in_order, filter_df_missing_col
 )
 from json_listing_parser import JsonListingParser
 
@@ -76,9 +76,9 @@ class DatafinitiDownloader:
             query = self.sold_homes_query
         return query
     
-    def download_results_locally(self) -> None:
+    def download_results_as_local_csv(self) -> None:
         all_listings_dict = {}
-        results = self._download_data()
+        results = self._summon_data()
         
         for res in results:
             result_filepath = self.data_path/'results_group.txt'
@@ -92,34 +92,33 @@ class DatafinitiDownloader:
                 if f.startswith(self.json_listing_prefix) and f.endswith('.json')
             ]
             for f in json_listings:
-                stem = Path(f).stem
                 listing_dict = self._parse_json_listing(f)
-                all_listings_dict.update({stem: listing_dict}) 
+                all_listings_dict.update({Path(f).stem: listing_dict}) 
         
         all_listings_frame = pd.DataFrame(all_listings_dict).transpose()
-        check_columns_integrity(all_listings_frame.columns)
-        all_listings_frame = all_listings_frame[COLUMN_ORDER]
+        listings_frame_ordered = put_columns_in_order(all_listings_frame)
+        listings_frame_w_id = filter_df_missing_col(listing_frame_ordered, 'id')
         
         data_id = get_unique_id(str)
-        all_listings_frame.to_csv(
-            f'../data/listings_{data_id}', header=False, index=False
+        listings_frame_w_id.to_csv(
+            f'../data/listings_{data_id}.csv', header=False, index=False
         )
                 
-    def _download_data(self) -> list:
-        post_resp_json, download_id = self._send_post_req()
-        get_resp_json, results = self._send_get_req(download_id)
+    def _summon_data(self) -> list:
+        download_id = self._send_post_req()
+        results = self._send_get_req(download_id)
         return results
     
-    def _send_post_req(self) -> Tuple[Union[list, dict], int]:
+    def _send_post_req(self) -> int:
         post_resp_obj = requests.post(
             'https://api.datafiniti.co/v4/properties/search',
             json=self.request_data, headers=self.request_headers
         )
         post_resp_json = post_resp_obj.json()
         download_id = post_resp_json['id']
-        return post_resp_json, download_id
+        return download_id
     
-    def _send_get_req(self, download_id:str) -> Tuple[Union[list, dict], list]:
+    def _send_get_req(self, download_id:str) -> list:
         status = None
         elapsed_time = 0
         start_time = time.time()
@@ -140,7 +139,7 @@ class DatafinitiDownloader:
                 )
             
         results = get_resp_json['results']
-        return get_resp_json, results
+        return results
             
     def _unpack_to_json_files(self, result_filepath:Union[str, Path]) -> None:
         # result_filepath will contain a file where each line contains a JSON 

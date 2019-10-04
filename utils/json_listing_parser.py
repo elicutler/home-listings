@@ -36,6 +36,9 @@ class JsonListingParser:
         price_str = re.findall(r'(?<=\$)(\d+,\d+)', string)[0]
         price = int(price_str.replace(',', ''))
         return price
+    
+    def set_id(self) -> None:
+        self.attributes['id'] = self.json_listing['id']
             
     def set_listing_history(self) -> None:
         first_listed_date = None
@@ -217,6 +220,10 @@ class JsonListingParser:
                 self.attributes['median_sale_list_price_ratio'] = median_sale_list_price_ratio
         
     def set_all_attributes(self, raise_exception:bool=False) -> None:
+        try:
+            se.fset_id()
+        except:
+            logger.warning('Could not execute set_id()')
         try:
             self.set_listing_history()
         except:
