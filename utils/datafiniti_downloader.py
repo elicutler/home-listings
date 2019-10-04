@@ -43,8 +43,7 @@ class DatafinitiDownloader:
         AND propertyType:(Home OR \"Multi-Family Dwelling\" OR \
             \"Single Family Dwelling\" OR Townhouse)\
         AND sourceURLs:redfin.com\
-        AND dateAdded:[2017-01-01 TO *]\
-        AND id:*\
+        AND dateAdded:[2017-01-01 TO *]
     '''
     
     def __init__(
@@ -75,7 +74,7 @@ class DatafinitiDownloader:
             query = self.sold_homes_query
         return query
     
-    def download_results_as_local_csv(self) -> None:
+    def download_results_as_local_csv(self) -> str:
         all_listings_dict = {}
         results = self._summon_data()
         
@@ -99,9 +98,9 @@ class DatafinitiDownloader:
         listings_frame_w_id = filter_df_missing_col(listings_frame_ordered, 'id')
         
         data_id = get_unique_id(str)
-        listings_frame_w_id.to_csv(
-            f'../data/listings_{data_id}.csv', header=False, index=False
-        )
+        csv_path = f'../data/listings_{data_id}.csv'
+        listings_frame_w_id.to_csv(csv_path, header=False, index=False)
+        return csv_path
                 
     def _summon_data(self) -> list:
         download_id = self._send_post_req()
@@ -158,6 +157,3 @@ class DatafinitiDownloader:
         json_listing_parser.set_all_attributes()
         return json_listing_parser.attributes
                         
-
-    
-                

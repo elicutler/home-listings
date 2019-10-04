@@ -67,10 +67,3 @@ def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
     return df
 
 
-def upload_to_s3() -> None:
-    s3_prefix = 'home-listings'
-
-prefix = 'boston-xgboost-deploy-hl'
-
-val_location = session.upload_data(os.path.join(data_dir, 'validation.csv'), key_prefix=prefix)
-train_location = session.upload_data(os.path.join(data_dir, 'train.csv'), key_prefix=prefix)
