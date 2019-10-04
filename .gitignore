@@ -3,3 +3,4 @@
 **/credentials.py
 *.json
 !**/tests/*.json
+**/*.jpg
