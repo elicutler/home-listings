@@ -72,12 +72,15 @@ class JsonListingParser:
                         if first_listed_date is None \
                         or update_dt < first_listed_date:
                             first_listed_date = update_dt
-                            first_listed_price = price   
+                            first_listed_price = price 
+                            
+        listing_to_sale_days = int((first_sold_date - first_listed_date).days)
                             
         self.attributes['first_sold_date'] = first_sold_date
         self.attributes['first_sold_price'] = first_sold_price
         self.attributes['first_listed_date'] = first_listed_date
         self.attributes['first_listed_price'] = first_listed_price
+        self.attributes['listing_to_sale_days'] = listing_to_sale_days
         
     def set_first_description(self) -> None:
         first_desc_date = None
