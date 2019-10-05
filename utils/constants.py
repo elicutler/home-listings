@@ -1,6 +1,6 @@
 
 COLUMN_ORDER = [
-    'id', 'listing_to_sale_days', 'first_desc', 'first_sold_date', 
+    'id', 'listed_to_sold_days', 'first_desc', 'first_sold_date', 
     'first_sold_price', 'first_listed_date', 'first_listed_price', 
     'first_jpg_image_link', 'first_desc_date', 'latitude', 'longitude', 
     'floor_size', 'year_built', 'exterior', 'num_rooms', 'land_value', 
