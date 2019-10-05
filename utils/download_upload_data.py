@@ -80,11 +80,6 @@ if __name__ == '__main__':
         session.upload_data(csv_samples, key_prefix=s3_prefix)
         logger.info(f'Uploaded chunk {c+1}/{ttl_chunks} to s3')
         
-        json_files = [f for f in os.listdir(data_path) if f.endswith('json')]
-        for f in json_files:
-            os.remove(f'{data_path}/{f}')
-
-        csv_files = [f for f in os.listdir(data_path) if f.endswith('.csv')]
-        for f in csv_files:
-            os.remove(f'{data_path}/{f}')
-    
+        deleter = Deleter(data_path)
+        deleter.delete_json_files()
+        deleter.delete_csv_files()
