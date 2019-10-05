@@ -1,5 +1,5 @@
 ### Steps to initialize the jupyter environment
-If setting up the environment for the first time, execute the following statements:
+If setting up the environment for the first time, execute the following statements. Note that if you are not me you should first edit the `git config` lines of the `init_env.sh` file to take your own name and email. Note also that this will apply my setting preferences (dark theme for jupyterlab, material theme for text editor).
 ```
 cd ~/SageMaker
 git clone https://github.com/elicutler/home-listings.git
