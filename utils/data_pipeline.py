@@ -72,10 +72,6 @@ if __name__ == '__main__':
                 query_today_updates_only=args_dict['query_today_updates_only'],
                 get_timeout_secs=args_dict['get_timeout_secs']
             )
-        else:
-            logger.info('All chunks processed. Exiting now.')
-            break
-            
         csv_samples = datafiniti_downloader.download_results_as_local_csv()
         logger.info(f'Downloaded chunk {c+1}/{ttl_chunks} locally')
         
@@ -85,3 +81,5 @@ if __name__ == '__main__':
         deleter = Deleter(data_path)
         deleter.delete_json_files()
         deleter.delete_csv_files()
+
+    logger.info('All chunks processed.')
