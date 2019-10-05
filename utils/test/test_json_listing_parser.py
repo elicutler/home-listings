@@ -38,7 +38,9 @@ class TestJsonListingParser(unittest.TestCase):
         self.assertEqual(
             self.json_listing_parser.attributes['first_listed_price'], 340000
         )
-        
+        self.assertEqual(
+            self.json_listing_parser.attributes['listed_to_sold_days'], 70
+        )
     def test_set_first_description(self):
         self.json_listing_parser.set_first_description()
         self.assertIsInstance(self.json_listing_parser.attributes['first_desc'], str)
@@ -47,7 +49,7 @@ class TestJsonListingParser(unittest.TestCase):
     def test_set_first_jpg_image(self):
         self.json_listing_parser.set_first_jpg_image()
         self.assertTrue(
-            self.json_listing_parser.attributes['first_jpg_image_link'].endswith('.jpg')
+            self.json_listing_parser.attributes['first_img_link'].endswith('.jpg')
         )
         
     def test_set_latitude(self):

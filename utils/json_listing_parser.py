@@ -74,13 +74,13 @@ class JsonListingParser:
                             first_listed_date = update_dt
                             first_listed_price = price 
                             
-        listing_to_sale_days = int((first_sold_date - first_listed_date).days)
+        listed_to_sold_days = int((first_sold_date - first_listed_date).days)
                             
         self.attributes['first_sold_date'] = first_sold_date
         self.attributes['first_sold_price'] = first_sold_price
         self.attributes['first_listed_date'] = first_listed_date
         self.attributes['first_listed_price'] = first_listed_price
-        self.attributes['listing_to_sale_days'] = listing_to_sale_days
+        self.attributes['listed_to_sold_days'] = listed_to_sold_days
         
     def set_first_description(self) -> None:
         first_desc_date = None
@@ -102,9 +102,10 @@ class JsonListingParser:
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         img_link = jpg_image_links[0]
+        img_local = Path(img_link).name
         
-        urllib.request.urlretrieve(img_link, self.data_path/f'{first_image_link}')
-        img = Image.open(self.data_path/f'{img_link}')
+        urllib.request.urlretrieve(img_link, img_local)
+        img = Image.open(img_local)
         img_arr = np.asarray(img)
         img_arr_list = img_arr.tolist()
         
