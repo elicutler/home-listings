@@ -13,6 +13,7 @@ import sagemaker
 from pathlib import Path
 from gen_utils import set_logger_defaults
 from datafiniti_downloader import DatafinitiDownloader
+from deleter import Deleter
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -74,17 +75,13 @@ if __name__ == '__main__':
         else:
             logger.info('All chunks processed. Exiting now.')
             break
+            
         csv_samples = datafiniti_downloader.download_results_as_local_csv()
         logger.info(f'Downloaded chunk {c+1}/{ttl_chunks} locally')
         
         session.upload_data(csv_samples, key_prefix=s3_prefix)
         logger.info(f'Uploaded chunk {c+1}/{ttl_chunks} to s3')
         
-        json_files = [f for f in os.listdir(data_path) if f.endswith('json')]
-        for f in json_files:
-            os.remove(f'{data_path}/{f}')
-
-        csv_files = [f for f in os.listdir(data_path) if f.endswith('.csv')]
-        for f in csv_files:
-            os.remove(f'{data_path}/{f}')
-    
+        deleter = Deleter(data_path)
+        deleter.delete_json_files()
+        deleter.delete_csv_files()
