@@ -78,7 +78,7 @@ pytz==2019.2
 PyYAML==3.13
 pyzmq==18.1.0
 regex==2018.7.11
-requests==2.22.0
+requests==2.21.0
 s3transfer==0.2.1
 sacremoses==0.0.35
 sagemaker==1.42.6
