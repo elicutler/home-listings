@@ -19,7 +19,7 @@ class Deleter:
         json_files = [f for f in os.listdir(self.path) if f.endswith('json')]
         for f in json_files:
             os.remove(f'{self.path}/{f}')
-
+            
     def delete_csv_files(self) -> None:
         csv_files = [f for f in os.listdir(self.path) if f.endswith('.csv')]
         for f in csv_files:

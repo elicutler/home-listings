@@ -13,6 +13,7 @@ import sagemaker
 from pathlib import Path
 from gen_utils import set_logger_defaults
 from datafiniti_downloader import DatafinitiDownloader
+from deleter import Deleter
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -74,6 +75,7 @@ if __name__ == '__main__':
         else:
             logger.info('All chunks processed. Exiting now.')
             break
+            
         csv_samples = datafiniti_downloader.download_results_as_local_csv()
         logger.info(f'Downloaded chunk {c+1}/{ttl_chunks} locally')
         
