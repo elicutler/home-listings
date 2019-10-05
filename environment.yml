@@ -81,7 +81,7 @@ dependencies:
   - pyzmq=18.1.0=py37he6710b0_0
   - readline=7.0=h7b6447c_5
   - regex=2018.07.11=py37h14c3975_0
-  - requests=2.22.0=py37_0
+  - requests=2.20.1=py37_0
   - send2trash=1.5.0=py37_0
   - setuptools=41.2.0=py37_0
   - six=1.12.0=py37_0
