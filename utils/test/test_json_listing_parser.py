@@ -44,8 +44,8 @@ class TestJsonListingParser(unittest.TestCase):
         self.assertIsInstance(self.json_listing_parser.attributes['first_desc'], str)
         self.assertGreater(len(self.json_listing_parser.attributes['first_desc']), 0)
     
-    def test_set_first_jpg_image_link(self):
-        self.json_listing_parser.set_first_jpg_image_link()
+    def test_set_first_jpg_image(self):
+        self.json_listing_parser.set_first_jpg_image()
         self.assertTrue(
             self.json_listing_parser.attributes['first_jpg_image_link'].endswith('.jpg')
         )

@@ -3,10 +3,13 @@ import logging
 import json
 import re
 import urllib.request
+import ast
+import numpy as np
 
 from typing import Union
 from pathlib import Path
 from datetime import datetime
+from PIL import Image
 from functools import wraps
 from gen_utils import set_logger_defaults
 
@@ -91,12 +94,20 @@ class JsonListingParser:
         self.attributes['first_desc_date'] = first_desc_date
         self.attributes['first_desc'] = first_desc
                     
-    def set_first_jpg_image_link(self) -> None:
+    def set_first_jpg_image(self) -> None:
         jpg_image_links = [
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
-        self.attributes['first_jpg_image_link'] = jpg_image_links[0]
+        img_link = jpg_image_links[0]
         
+        urllib.request.urlretrieve(img_link, self.data_path/f'{first_image_link}')
+        img = Image.open(self.data_path/f'{img_link}')
+        img_arr = np.asarray(img)
+        img_arr_list = img_arr.tolist()
+        
+        self.attributes['first_img_link'] = img_link
+        self.attributes['first_img_arr_list'] = img_arr_list
+
     def set_latitude(self) -> None:
         self.attributes['latitude'] = float(self.json_listing['latitude'])
         
@@ -237,7 +248,7 @@ class JsonListingParser:
             else:
                 logger.warning('Could not execute set_first_description()')
         try:
-            self.set_first_jpg_image_link()
+            self.set_first_jpg_image()
         except:
             if raise_exception:
                 raise

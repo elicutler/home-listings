@@ -4,3 +4,4 @@
 *.json
 !**/tests/*.json
 **/*.jpg
+**/*.csv
