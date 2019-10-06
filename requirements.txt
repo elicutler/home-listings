@@ -29,7 +29,7 @@ ipywidgets==7.5.1
 jedi==0.15.1
 Jinja2==2.10.1
 jmespath==0.9.4
-jsonschema==3.0.2
+jsonschema==2.6.0
 jupyter==1.0.0
 jupyter-client==5.3.3
 jupyter-console==6.0.0
