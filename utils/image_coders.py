@@ -1,6 +1,7 @@
 
 import logging
 import urllib.request
+import os
 import ast
 import numpy as np
 import pandas as pd
@@ -17,19 +18,21 @@ set_logger_defaults(logger)
 
 class ImageEncoder:
     '''
-    Download image, convert image to list representation,
-    reconstruct image.
+    Download image and convert image to list representation,
     '''
-    def __init__(self, url:str, local_path:Union[str, Path]):
+    def __init__(self, url:str, local_path:Union[Path, str]):
         self.url = url
-        self.local_path = local_path
+        self.local_path = Path(local_path) if not isinstance(local_path, Path) else local_path
                  
-    def img_url_to_arr_list(self) -> list:
-        if self.local_path
-        img = Image.open(img_local) 
+    def img_to_arr_list(self) -> list:
+        if self.local_path.name not in os.listdir(self.local_path.parent):
+            self.download_img()
+            
+        img = Image.open(self.local_path) 
         img_arr = np.asarray(img)
         img_arr_list = img_arr.tolist()
         return img_arr_list
     
     def download_img(self) -> None:
         urllib.request.urlretrieve(self.url, self.local_path)
+        

@@ -67,3 +67,7 @@ def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
     return df
 
 
+def delete_file_types(path:Union[str, Path], file_type:str) -> None:
+    files = [f for f in os.listdir(path) if f.endswith(file_type)]
+    for f in files:
+        os.remove(f'{path}/{f}')

@@ -11,9 +11,8 @@ import sys; sys.path.insert(0, '..')
 import sagemaker
 
 from pathlib import Path
-from gen_utils import set_logger_defaults
+from gen_utils import set_logger_defaults, delete_file_types
 from datafiniti_downloader import DatafinitiDownloader
-from deleter import Deleter
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -49,8 +48,6 @@ if __name__ == '__main__':
     csv_samples = datafiniti_downloader.download_results_as_local_csv()
     session.upload_data(csv_samples, key_prefix=s3_prefix)
 
-    deleter = Deleter(data_path)
-    deleter.delete_json_files()
-    deleter.delete_csv_files()
-
+    delete_file_types(data_path, '.json')
+    delete_file_types(data_path, '.csv')
     logger.info('All chunks processed.')
