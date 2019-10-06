@@ -15,20 +15,21 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 
-class ImageCoder:
+class ImageEncoder:
     '''
     Download image, convert image to list representation,
     reconstruct image.
     '''
-        
-    @staticmethod
-    def img_url_to_arr_list(
-        url:str, local_path:Union[str, Path]
-    ) -> list:
-        urllib.request.urlretrieve(url, local_path)
+    def __init__(self, url:str, local_path:Union[str, Path]):
+        self.url = url
+        self.local_path = local_path
+                 
+    def img_url_to_arr_list(self) -> list:
+        if self.local_path
         img = Image.open(img_local) 
         img_arr = np.asarray(img)
         img_arr_list = img_arr.tolist()
         return img_arr_list
     
-    
+    def download_img(self) -> None:
+        urllib.request.urlretrieve(self.url, self.local_path)

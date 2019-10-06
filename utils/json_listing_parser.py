@@ -12,6 +12,7 @@ from datetime import datetime
 from PIL import Image
 from functools import wraps
 from gen_utils import set_logger_defaults
+from image_coder import ImageCoder
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -103,11 +104,7 @@ class JsonListingParser:
         ]
         img_link = jpg_image_links[0]
         img_local = Path(img_link).name
-        
-        urllib.request.urlretrieve(img_link, img_local)
-        img = Image.open(img_local)
-        img_arr = np.asarray(img)
-        img_arr_list = img_arr.tolist()
+        img_arr_list = ImageCoder.img_url_to_arr_list(img_link, img_local)
         
         self.attributes['first_img_link'] = img_link
         self.attributes['first_img_arr_list'] = img_arr_list
