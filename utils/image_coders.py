@@ -48,7 +48,7 @@ class ImageDecoder:
     def __init__(self, iarr_list:list):
         self.arr_list = arr_list
         
-    def arr_list_to_image(self) -> PIL.Image.Image:
+    def arr_list_to_image(self) -> Image.Image:
         img_arr = np.array(ast.literal_eval(self.arr_list), dtype='uint8')
         img = Image.fromarray(img_arr)
         return img

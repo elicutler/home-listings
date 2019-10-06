@@ -50,4 +50,4 @@ if __name__ == '__main__':
 
     delete_file_types(data_path, '.json')
     delete_file_types(data_path, '.csv')
-    logger.info('All chunks processed.')
+    logger.info('Finished.')
