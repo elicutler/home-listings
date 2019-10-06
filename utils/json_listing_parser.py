@@ -12,6 +12,7 @@ from datetime import datetime
 from PIL import Image
 from functools import wraps
 from gen_utils import set_logger_defaults
+from image_coders import ImageEncoder
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -72,12 +73,15 @@ class JsonListingParser:
                         if first_listed_date is None \
                         or update_dt < first_listed_date:
                             first_listed_date = update_dt
-                            first_listed_price = price   
+                            first_listed_price = price 
+                            
+        listed_to_sold_days = int((first_sold_date - first_listed_date).days)
                             
         self.attributes['first_sold_date'] = first_sold_date
         self.attributes['first_sold_price'] = first_sold_price
         self.attributes['first_listed_date'] = first_listed_date
         self.attributes['first_listed_price'] = first_listed_price
+        self.attributes['listed_to_sold_days'] = listed_to_sold_days
         
     def set_first_description(self) -> None:
         first_desc_date = None
@@ -99,11 +103,9 @@ class JsonListingParser:
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         img_link = jpg_image_links[0]
-        
-        urllib.request.urlretrieve(img_link, self.data_path/f'{first_image_link}')
-        img = Image.open(self.data_path/f'{img_link}')
-        img_arr = np.asarray(img)
-        img_arr_list = img_arr.tolist()
+        img_local = Path(img_link).name
+        img_encoder = ImageEncoder(img_link, img_local)
+        img_arr_list = img_encoder.img_to_arr_list()
         
         self.attributes['first_img_link'] = img_link
         self.attributes['first_img_arr_list'] = img_arr_list

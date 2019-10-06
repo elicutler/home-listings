@@ -1,10 +1,12 @@
 
+import os
 import sys; sys.path.insert(0, '.')
 import logging
 import pandas as pd
 import numpy as np
 
 from typing import Union, Any
+from pathlib import Path
 from datetime import datetime
 from constants import COLUMN_ORDER
 
@@ -67,3 +69,7 @@ def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
     return df
 
 
+def delete_file_types(path:Union[str, Path], file_type:str) -> None:
+    files = [f for f in os.listdir(path) if f.endswith(file_type)]
+    for f in files:
+        os.remove(f'{path}/{f}')
