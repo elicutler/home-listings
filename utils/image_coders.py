@@ -4,13 +4,12 @@ import urllib.request
 import os
 import ast
 import numpy as np
-import pandas as pd
 import ast
 
 from typing import Union
 from pathlib import Path
 from PIL import Image
-from gen_utils import set_logger_defaults, delete_file_types
+from gen_utils import set_logger_defaults
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)

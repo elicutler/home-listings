@@ -13,7 +13,7 @@ import sys; sys.path.insert(0, '..')
 import pandas as pd
 
 from pathlib import Path
-from typing import Union, Tuple, Optional
+from typing import Union
 from credentials import DATAFINITI_API_TOKEN
 from gen_utils import (
     set_logger_defaults, get_unique_id, put_columns_in_order, filter_df_missing_col

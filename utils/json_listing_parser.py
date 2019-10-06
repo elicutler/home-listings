@@ -2,14 +2,10 @@
 import logging
 import json
 import re
-import urllib.request
-import ast
-import numpy as np
 
 from typing import Union
 from pathlib import Path
 from datetime import datetime
-from PIL import Image
 from functools import wraps
 from gen_utils import set_logger_defaults
 from image_coders import ImageEncoder

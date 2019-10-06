@@ -6,11 +6,9 @@ Data formatted in JSON.
 
 import logging
 import argparse
-import os
 import sys; sys.path.insert(0, '..')
 import sagemaker
 
-from pathlib import Path
 from gen_utils import set_logger_defaults, delete_file_types
 from datafiniti_downloader import DatafinitiDownloader
 

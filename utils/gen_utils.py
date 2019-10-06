@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from typing import Union, Any
+from typing import Union
 from pathlib import Path
 from datetime import datetime
 from constants import COLUMN_ORDER
