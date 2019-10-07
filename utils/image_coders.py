@@ -21,7 +21,9 @@ class ImageEncoder:
     '''
     def __init__(self, url:str, local_path:Union[Path, str]):
         self.url = url
-        self.local_path = Path(local_path) if not isinstance(local_path, Path) else local_path
+        self.local_path = (
+            local_path if isinstance(local_path, Path) else Path(local_path)
+        )
                  
     def img_to_arr_list(self, del_img_on_exit:bool=True) -> list:
         if self.local_path.name not in os.listdir(self.local_path.parent):

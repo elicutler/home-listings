@@ -17,7 +17,7 @@ def set_logger_defaults(
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    streamHandler = logging.StreamHandler()
+    streamHandler = logging.StreamHandler(sys.stdout)
     streamHandler.setLevel(level)
     streamHandler.setFormatter(formatter)
     
