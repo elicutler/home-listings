@@ -1,4 +1,5 @@
 
+import sys; sys.path.insert(0, '../utils')
 import torch.nn as nn
 
 
@@ -8,7 +9,6 @@ class PyTorchModel(nn.Module):
     '''
     def __init__(self, *_, *__):
         super().__init__()
-        pass
     
-    def forward(self, text, img, tabular):
-        pass
+    def forward(self, x):
+        print(x)

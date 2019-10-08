@@ -3,6 +3,7 @@ import sys; sys.path.insert(0, '../utils')
 import logger
 import torch
 import argparse
+import model_helpers
 
 from typing import Union
 from pathlib import Path
@@ -13,17 +14,30 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 
-def model_fn(model_dir:Union[Path, str]) -> PyTorchModel:
-    '''
-    Load the PyTorchModel from model_dir
-    '''
-    model_dir = model_dir if isinstance(model_dir, Path) else Path(model_dir)
-    model = PyTorchModel()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
     
-    with open(model_dir/'pytorch_model.pt', 'rb') as model_file:
-        model.load_state_dict(torch.load(model_file))
+    parser.add_argument('--output-data-dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
+    parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
+    parser.add_argument('--train-data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    
+    parser.add_argument('--batch-size', type=int, default=64)
+    parser.add_argument('--epochs', type=int, default=10)
+    
+    args = parser.parse_args()
+
+
+# def model_fn(model_dir:Union[Path, str]) -> PyTorchModel:
+#     '''
+#     Load the PyTorchModel from model_dir
+#     '''
+#     model_dir = model_dir if isinstance(model_dir, Path) else Path(model_dir)
+#     model = PyTorchModel()
+    
+#     with open(model_dir/'pytorch_model.pt', 'rb') as model_file:
+#         model.load_state_dict(torch.load(model_file))
         
-    return model
+#     return model
     
 
 # https://sagemaker.readthedocs.io/en/stable/using_pytorch.html
