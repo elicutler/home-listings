@@ -6,3 +6,19 @@ COLUMN_ORDER = [
     'num_rooms', 'land_value', 'roof_material', 'style', 'lot_size', 'additions_value', 
     'heating_fuel', 'heating_type', 'parking_spaces', 'cooling_system', 'foundation_details'
 ]
+ID_COLS = ['id']
+OUTCOME_COLS = ['listed_to_sold_days', 'first_sold_price']
+TEXT_COLS = ['first_desc']
+IMG_ARR_LIST_COLS = ['first_img_arr_list']
+EXTRA_COLS = ['first_img_link', 'first_desc_date']
+TAB_COLS = [
+    c for c in COLUMN_ORDER
+    if c not in [*ID_COLS, *OUTCOME_COLS, *TEXT_COLS, *IMG_ARR_LIST_COLS, *EXTRA_COLS]
+]
+RECONSTRUCT_COLS = [
+    *ID_COLS, *OUTCOME_COLS, *TEXT_COLS, *IMG_ARR_LIST_COLS, *EXTRA_COLS, *TAB_COLS
+] 
+
+assert sorted(COLUMN_ORDER) == sorted(RECONSTRUCT_COLS), (
+    'Not all columns accounted for in parts'
+)
