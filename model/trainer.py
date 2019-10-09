@@ -72,7 +72,7 @@ class Trainer:
         self.val_loader = self._make_test_laoder(*args, **kwargs)
 
     @staticmethod
-    def _make_data_loader(
+    def make_data_loader(
         path:Union[Path, str], batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
     ) -> torch.utils.data.DataLoader:
