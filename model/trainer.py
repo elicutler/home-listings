@@ -19,7 +19,7 @@ class Trainer:
         self, model:PyTorchModel, loss_func:Any, optimizer:Any
     ):
         self.model = model
-        self.loss_func = loss_func
+        self.loss_func = loss_func(reduction='sum')
         self.optimizer = optimizer
         self.train_loader = None
         self.val_loader = None
@@ -38,10 +38,12 @@ class Trainer:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model.to(device)
         
-        total_train_loss = []
+        total_train_loss_avg = []
         
         for e in range(1, epochs+1):
             self.model.train()
+            
+            epoch_loss_sum = 0
             
             for batch in self.train_loader:
                 X_tab, X_desc, X_img, y = batch
@@ -56,6 +58,12 @@ class Trainer:
                 loss = self.loss_func(y_pred, y)
                 loss.backward()
                 self.optimizer.step()
+                
+                epoch_loss += loss.data.item()
+                
+            total_train_loss_avg += epoch_loss / len(self.train_loader)
+            
+            # TODO: calc test_loss
             
     def _make_train_loader(self, *args, **kwargs) -> None:
         self.train_loader = self._make_data_loader(*args, **kwargs)
