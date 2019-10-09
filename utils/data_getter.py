@@ -29,6 +29,13 @@ if __name__ == '__main__':
         '--get_timeout_secs', '-g', type=int, default=10,
         help='maximum number of seconds to allow download attempt before timing out'
     )
+    parser.add_argument(
+        '--s3_subfolder', '-s', type=str, default='train',
+        help=(
+            's3 subdirectory within home-listings to download data to.'
+            ' Typically "train", "val", or "test".'
+        )
+    )
     args = parser.parse_args()
     args_dict = vars(args)
     

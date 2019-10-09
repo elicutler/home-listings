@@ -3,7 +3,7 @@ import sys; sys.path.insert(0, '../utils')
 import logging
 import torch
 
-from typing import Union
+from typing import Any
 from pathlib import Path
 from gen_utils import set_logger_defaults
 from constants import COLUMN_ORDER, TAB_COLS
@@ -13,22 +13,61 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 
-class ModelHelpers:
+class Trainer:
     
-    def __init__(self, model:Union[PyTorchModel], loss_func:str):
+    def __init__(
+        self, model:PyTorchModel, loss_func:Any, optimizer:Any
+    ):
         self.model = model
         self.loss_func = loss_func
+        self.optimizer = optimizer
+        self.train_loader = None
+        self.val_loader = None
     
-    def train() -> None:
-        pass
+    def train(self, epochs:int) -> None:
+        
+        assert self.train_loader is not None, (
+            'self.train_loader has not not been initialized.'
+            ' Need to call self._make_train_loader() first'
+        )
+        assert self.val_loader is not None, (
+            'self.val_loader has not been initialized.'
+            ' Need to call self._make_val_loader() first.'
+        )
+        
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model.to(device)
+        
+        total_train_loss = []
+        
+        for e in range(1, epochs+1):
+            self.model.train()
+            
+            for batch in self.train_loader:
+                X_tab, X_desc, X_img, y = batch
+                
+                X_tab.to(device)
+                X_desc.to(device)
+                X_img.to(device)
+                
+                self.optimizer.zero_grad()
+                y_pred = self.model.forward(X_tab, X_desc, X_img)
+                
+                loss = self.loss_func(y_pred, y)
+                loss.backward()
+                self.optimizer.step()
+            
+    def _make_train_loader(self, *args, **kwargs) -> None:
+        self.train_loader = self._make_data_loader(*args, **kwargs)
+        
+    def _make_val_loader(self, *args, **kwargs) -> None:
+        self.val_loader = self._make_test_laoder(*args, **kwargs)
 
     @staticmethod
     def _make_data_loader(
         path:Union[Path, str], batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
     ) -> torch.utils.data.DataLoader:
-        
-        logger.info('Making data loader')
         
         assert int(concat_all) + int(data_file is not None) == 1, (
             'Failed to satisfy: concat_all==True XOR data_file is not None'

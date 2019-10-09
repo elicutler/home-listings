@@ -10,5 +10,5 @@ class PyTorchModel(nn.Module):
     def __init__(self, *_, *__):
         super().__init__()
     
-    def forward(self, x):
-        print(x)
+    def forward(self, X_tab, X_desc, X_img):
+        pass
