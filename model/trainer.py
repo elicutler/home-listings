@@ -16,11 +16,12 @@ set_logger_defaults(logger)
 class Trainer:
     
     def __init__(
-        self, model:PyTorchModel, loss_func:Any, optimizer:Any
+        self, model:PyTorchModel, loss_func:Any, optimizer:Any, 
+        **optimizer_kwargs
     ):
         self.model = model
         self.loss_func = loss_func(reduction='sum')
-        self.optimizer = optimizer
+        self.optimizer = optimizer(**optimizer_kwargs)
         self.train_loader = None
         self.val_loader = None
     
@@ -35,7 +36,7 @@ class Trainer:
             ' Need to call self._make_val_loader() first.'
         )
         
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
         
         total_train_loss_avg = []
@@ -43,17 +44,17 @@ class Trainer:
         for e in range(1, epochs+1):
             self.model.train()
             
-            epoch_loss_sum = 0
+            epoch_loss = 0
             
             for batch in self.train_loader:
-                X_tab, X_desc, X_img, y = batch
+                x_tab, x_desc, x_img, y = batch
                 
-                X_tab.to(device)
-                X_desc.to(device)
-                X_img.to(device)
+                x_tab.to(device)
+                x_desc.to(device)
+                x_img.to(device)
                 
                 self.optimizer.zero_grad()
-                y_pred = self.model.forward(X_tab, X_desc, X_img)
+                y_pred = self.model.forward(x_tab, x_desc, x_img)
                 
                 loss = self.loss_func(y_pred, y)
                 loss.backward()
@@ -61,18 +62,18 @@ class Trainer:
                 
                 epoch_loss += loss.data.item()
                 
-            total_train_loss_avg += epoch_loss / len(self.train_loader)
+            total_train_loss_avg.append(epoch_loss / len(self.train_loader))
             
             # TODO: calc test_loss
             
-    def _make_train_loader(self, *args, **kwargs) -> None:
+    def make_train_loader(self, *args, **kwargs) -> None:
         self.train_loader = self._make_data_loader(*args, **kwargs)
         
-    def _make_val_loader(self, *args, **kwargs) -> None:
-        self.val_loader = self._make_test_laoder(*args, **kwargs)
+    def make_val_loader(self, *args, **kwargs) -> None:
+        self.val_loader = self._make_data_loader(*args, **kwargs)
 
     @staticmethod
-    def make_data_loader(
+    def _make_data_loader(
         path:Union[Path, str], batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
     ) -> torch.utils.data.DataLoader:

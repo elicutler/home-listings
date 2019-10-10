@@ -22,3 +22,5 @@ RECONSTRUCT_COLS = [
 assert sorted(COLUMN_ORDER) == sorted(RECONSTRUCT_COLS), (
     'Not all columns accounted for in parts'
 )
+
+S3_PREFIX = 'home-listings'

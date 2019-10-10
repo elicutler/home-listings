@@ -1,6 +1,6 @@
 
 import sys; sys.path.insert(0, '../utils')
-import logger
+import logging
 import torch
 import argparse
 import model_helpers
@@ -9,6 +9,7 @@ from typing import Union
 from pathlib import Path
 from gen_utils import set_logger_defaults
 from models import PyTorchModel
+from trainer import Trainer
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -24,7 +25,25 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=10)
     
-    args = parser.parse_args()
+    args = vars(parser.parse_args())
+    
+    model = PyTorchModel(x_tab_input_dim=10)
+    
+    trainer = Trainer(
+        model=model, loss_func=torch.nn.L1Loss, optimizer=torch.nn.optim.Adam
+    )
+    trainer.train(epochs=5)
+    
+    model_path = Path(args['model_dir'])
+    
+    model_args = {
+        'x_tab_input_dim': x_tab_input_dim
+    }
+    with open(model_path/'model_args.pt', 'wb') as file:
+        torch.save(model_args, file)
+        
+    with open(model_path/'model_params.pt', 'wb') as file:
+        torch.save(model_params, file)
 
 
 # def model_fn(model_dir:Union[Path, str]) -> PyTorchModel:
