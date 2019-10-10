@@ -2,8 +2,9 @@
 import sys; sys.path.insert(0, 'utils')
 import logging
 import torch
+import torch.utils.data
 
-from typing import Any
+from typing import Any, Union
 from pathlib import Path
 from gen_utils import set_logger_defaults
 from constants import COLUMN_ORDER, TAB_COLS
@@ -85,7 +86,7 @@ class Trainer:
         
         if concat_all:
             df_list = [
-                f: pd.read_csv(path/f, header=None, names=None)
+                pd.read_csv(path/f, header=None, names=None)
                 for f in os.listdir(path) if f.endswith('.csv')
             ]
             df = pd.concat(df_list, ignore_index=True, sort=False)
