@@ -1,5 +1,5 @@
 
-import sys; sys.path.insert(0, '../utils')
+import sys; sys.path.insert(0, 'utils')
 import logging
 import torch
 

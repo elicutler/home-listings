@@ -1,5 +1,4 @@
 
-import sys; sys.path.insert(0, '../utils')
 import sagemaker
 
 from sagemaker.pytorch import PyTorch
@@ -18,3 +17,4 @@ estimator = PyTorch(
     framework_version='1.1', hyperparameters={**hypers}
 )
 estimator.fit({'train': f's3://{bucket}'})
+

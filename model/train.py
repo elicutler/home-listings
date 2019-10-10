@@ -1,9 +1,8 @@
 
-import sys; sys.path.insert(0, '../utils')
+import sys; sys.path.insert(0, 'utils')
 import logging
 import torch
 import argparse
-import model_helpers
 
 from typing import Union
 from pathlib import Path
