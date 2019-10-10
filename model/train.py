@@ -29,7 +29,7 @@ if __name__ == '__main__':
     model = PyTorchModel(x_tab_input_dim=10)
     
     trainer = Trainer(
-        model=model, loss_func=torch.nn.L1Loss, optimizer=torch.nn.optim.Adam
+        model=model, loss_func=torch.nn.L1Loss, optimizer=torch.optim.Adam
     )
     trainer.train(epochs=5)
     
