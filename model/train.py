@@ -6,6 +6,7 @@ import argparse
 
 from typing import Union
 from pathlib import Path
+
 from gen_utils import set_logger_defaults
 from models import PyTorchModel
 from trainer import Trainer
@@ -17,12 +18,15 @@ set_logger_defaults(logger)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output-data-dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
-    parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--train-data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--output_data_dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
+    parser.add_argument('--model_dir', type=str, default=os.environ['SM_MODEL_DIR'])
+    parser.add_argument('--train_data_dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
-    parser.add_argument('--batch-size', type=int, default=64)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=10)
+    
+    parser.add_argument('--s3_bucket', type=str)
+    parser.add_argument('--s3_prefix', type=str)
     
     args = vars(parser.parse_args())
     
@@ -30,6 +34,11 @@ if __name__ == '__main__':
     
     trainer = Trainer(
         model=model, loss_func=torch.nn.L1Loss, optimizer=torch.optim.Adam
+    )
+
+    trainer.make_train_loader(
+        path=args['train_data_dir'], batch_size=args['batch_size'], 
+        outcome='first_sold_price', concat_all=True, data_file=None
     )
     trainer.train(epochs=5)
     

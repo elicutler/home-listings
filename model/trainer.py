@@ -1,11 +1,11 @@
 
-import sys; sys.path.insert(0, 'utils')
+import os
 import logging
 import torch
 import torch.utils.data
+import pandas as pd
 
-from typing import Any, Union
-from pathlib import Path
+from typing import Any
 from gen_utils import set_logger_defaults
 from constants import COLUMN_ORDER, TAB_COLS
 from models import PyTorchModel
@@ -22,21 +22,12 @@ class Trainer:
     ):
         self.model = model
         self.loss_func = loss_func(reduction='sum')
-        self.optimizer = optimizer(**optimizer_kwargs)
+        self.optimizer = optimizer(model.parameters(), **optimizer_kwargs)
         self.train_loader = None
         self.val_loader = None
     
     def train(self, epochs:int) -> None:
-        
-        assert self.train_loader is not None, (
-            'self.train_loader has not not been initialized.'
-            ' Need to call self._make_train_loader() first'
-        )
-        assert self.val_loader is not None, (
-            'self.val_loader has not been initialized.'
-            ' Need to call self._make_val_loader() first.'
-        )
-        
+
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
         
@@ -75,18 +66,17 @@ class Trainer:
 
     @staticmethod
     def _make_data_loader(
-        path:Union[Path, str], batch_size:int, outcome:str,
+        path:str, batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
     ) -> torch.utils.data.DataLoader:
         
         assert int(concat_all) + int(data_file is not None) == 1, (
             'Failed to satisfy: concat_all==True XOR data_file is not None'
         )        
-        path = path if isinstance(path, Path) else Path(path)
         
         if concat_all:
             df_list = [
-                pd.read_csv(path/f, header=None, names=None)
+                pd.read_csv(f'{path}/{f}', header=None, names=None)
                 for f in os.listdir(path) if f.endswith('.csv')
             ]
             df = pd.concat(df_list, ignore_index=True, sort=False)
@@ -95,6 +85,9 @@ class Trainer:
             df = pd.read_csv(path/data_file, header=None, names=None)
             
         df.columns = COLUMN_ORDER
+        
+        print(f'df cols are: {df.columns}')
+        print(f'tab cols are: {TAB_COLS}')
         
         X_tab = torch.from_numpy(df[[TAB_COLS]].values).float().squeeze()
         X_desc = torch.from_numpy(df[[DESC_COLS]].values).float().squeeze()
