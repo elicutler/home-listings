@@ -7,8 +7,9 @@ import pandas as pd
 
 from typing import Any
 from gen_utils import set_logger_defaults
-from constants import COLUMN_ORDER, TAB_COLS
+from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS
 from models import PyTorchModel
+from feature_en
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -86,13 +87,17 @@ class Trainer:
             
         df.columns = COLUMN_ORDER
         
-        print(f'df cols are: {df.columns}')
-        print(f'tab cols are: {TAB_COLS}')
+        df_tab = df[TAB_COLS]
+        df_desc = df[DESC_COLS]
+        df_img = df[IMG_COLS]
+        df_y = df[outcome]
         
-        X_tab = torch.from_numpy(df[[TAB_COLS]].values).float().squeeze()
-        X_desc = torch.from_numpy(df[[DESC_COLS]].values).float().squeeze()
-        X_img = torch.from_numpy(df[[IMG_COLS]].values).float().squeeze()
-        y = torch.from_numpy(df[[outcome]].values).float().squeeze()
+        
+        
+        X_tab = torch.from_numpy(df[TAB_COLS].values).float().squeeze()
+        X_desc = torch.from_numpy(df[DESC_COLS].values).float().squeeze()
+        X_img = torch.from_numpy(df[IMG_COLS].values).float().squeeze()
+        y = torch.from_numpy(df[outcome].values).float().squeeze()
         
         dataset = torch.utils.data.TensorDataset(X_tab, X_desc, X_img, y)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
