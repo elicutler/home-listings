@@ -7,7 +7,7 @@ import pandas as pd
 
 from typing import Any
 from gen_utils import set_logger_defaults
-from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS, TEXT_COLS, IMG_ARR_LIST_COLS
+from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS, TEXT_COLS, IMG_COLS
 from models import PyTorchModel
 from feature_enger import FeatureEnger
 
@@ -84,16 +84,18 @@ class Trainer:
             
         df.columns = COLUMN_ORDER
         
-        feature_enger = FeatureEnger()
-
-        df_tab = feature_enger.eng_tab_df()
+        feature_enger = FeatureEnger(
+            df_tab=df[TAB_COLS], df_text=df[TEXT_COLS], df_img=df[IMG_COLS]
+        )
+        feature_enger.one_hot_encode_cat_cols()
+        feature_enger.img_arr_list_to_arr()
         
         df_y = df[outcome]
         
         
         
-        x_tab = torch.from_numpy(df_tab.values).float().squeeze()
-        x_desc = torch.from_numpy(df[DESC_COLS].values).float().squeeze()
+        x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
+        x_desc = torch.from_numpy(df[].values).float().squeeze()
         x_img = torch.from_numpy(df[IMG_COLS].values).float().squeeze()
         y = torch.from_numpy(df[outcome].values).float().squeeze()
         
