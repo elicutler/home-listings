@@ -7,9 +7,9 @@ import pandas as pd
 
 from typing import Any
 from gen_utils import set_logger_defaults
-from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS
+from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS, TEXT_COLS, IMG_ARR_LIST_COLS
 from models import PyTorchModel
-from feature_en
+from feature_enger import FeatureEnger
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -41,14 +41,14 @@ class Trainer:
             epoch_loss = 0
             
             for batch in self.train_loader:
-                x_tab, x_desc, x_img, y = batch
+                x_tab, x_text, x_img, y = batch
                 
                 x_tab.to(device)
-                x_desc.to(device)
+                x_text.to(device)
                 x_img.to(device)
                 
                 self.optimizer.zero_grad()
-                y_pred = self.model.forward(x_tab, x_desc, x_img)
+                y_pred = self.model.forward(x_tab, x_text, x_img)
                 
                 loss = self.loss_func(y_pred, y)
                 loss.backward()
@@ -56,6 +56,7 @@ class Trainer:
                 
                 epoch_loss += loss.data.item()
                 
+            logger.info(f'epoch {e}/{epochs} loss: {epoch_loss}')
             total_train_loss_avg.append(epoch_loss / len(self.train_loader))
             
             # TODO: calc test_loss
@@ -83,19 +84,20 @@ class Trainer:
             
         df.columns = COLUMN_ORDER
         
-        df_tab = df[TAB_COLS]
-        df_desc = df[DESC_COLS]
-        df_img = df[IMG_COLS]
+        feature_enger = FeatureEnger()
+
+        df_tab = feature_enger.eng_tab_df()
+        
         df_y = df[outcome]
         
         
         
-        X_tab = torch.from_numpy(df[TAB_COLS].values).float().squeeze()
-        X_desc = torch.from_numpy(df[DESC_COLS].values).float().squeeze()
-        X_img = torch.from_numpy(df[IMG_COLS].values).float().squeeze()
+        x_tab = torch.from_numpy(df_tab.values).float().squeeze()
+        x_desc = torch.from_numpy(df[DESC_COLS].values).float().squeeze()
+        x_img = torch.from_numpy(df[IMG_COLS].values).float().squeeze()
         y = torch.from_numpy(df[outcome].values).float().squeeze()
         
-        dataset = torch.utils.data.TensorDataset(X_tab, X_desc, X_img, y)
+        dataset = torch.utils.data.TensorDataset(x_tab, x_desc, x_img, y)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
         
         if which_loader == 'train':
