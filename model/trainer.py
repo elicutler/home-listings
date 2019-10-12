@@ -95,9 +95,9 @@ class Trainer:
         
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
-        x_desc = torch.from_numpy(df[].values).float().squeeze()
-        x_img = torch.from_numpy(df[IMG_COLS].values).float().squeeze()
-        y = torch.from_numpy(df[outcome].values).float().squeeze()
+        x_desc = torch.from_numpy(feature_enger.df_desc.values).float().squeeze()
+        x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
+        y = torch.from_numpy(df_y.values).float().squeeze()
         
         dataset = torch.utils.data.TensorDataset(x_tab, x_desc, x_img, y)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
