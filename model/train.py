@@ -36,8 +36,8 @@ if __name__ == '__main__':
         model=model, loss_func=torch.nn.L1Loss, optimizer=torch.optim.Adam
     )
 
-    trainer.make_train_loader(
-        path=args['data_dir'], batch_size=args['batch_size'], 
+    trainer.make_data_loader(
+        which_loader='train', path=args['data_dir'], batch_size=args['batch_size'], 
         outcome='first_sold_price', concat_all=True, data_file=None
     )
     trainer.train(epochs=5)

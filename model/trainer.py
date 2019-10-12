@@ -26,6 +26,7 @@ class Trainer:
         self.optimizer = optimizer(model.parameters(), **optimizer_kwargs)
         self.train_loader = None
         self.val_loader = None
+        self.test_loader = None
     
     def train(self, epochs:int) -> None:
 
@@ -58,18 +59,13 @@ class Trainer:
             total_train_loss_avg.append(epoch_loss / len(self.train_loader))
             
             # TODO: calc test_loss
-            
-    def make_train_loader(self, *args, **kwargs) -> None:
-        self.train_loader = self._make_data_loader(*args, **kwargs)
-        
-    def make_val_loader(self, *args, **kwargs) -> None:
-        self.val_loader = self._make_data_loader(*args, **kwargs)
 
-    @staticmethod
-    def _make_data_loader(
-        path:str, batch_size:int, outcome:str,
+    def make_data_loader(
+        self, which_loader:str, path:str, batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
-    ) -> torch.utils.data.DataLoader:
+    ) -> None:
+        
+        assert which_loader in ['train', 'val', 'test']
         
         assert int(concat_all) + int(data_file is not None) == 1, (
             'Failed to satisfy: concat_all==True XOR data_file is not None'
@@ -101,7 +97,14 @@ class Trainer:
         
         dataset = torch.utils.data.TensorDataset(X_tab, X_desc, X_img, y)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
-        return dataloader
+        
+        if which_loader == 'train':
+            self.train_loader = dataloader
+        elif which_loader == 'val':
+            self.val_loader == dataloader
+        elif which_loader == 'test':
+            self.test_loader == dataloader
+        
         
         
         
