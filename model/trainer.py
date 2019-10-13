@@ -5,7 +5,7 @@ import torch
 import torch.utils.data
 import pandas as pd
 
-from typing import Any, Tuple
+from typing import Any
 from gen_utils import set_logger_defaults, put_columns_in_order
 from constants import (
     COLUMN_ORDER, TAB_FEATURES, TAB_CAT_FEATURES, TEXT_FEATURES, IMG_FEATURES
@@ -69,30 +69,30 @@ class Trainer:
         y = torch.from_numpy(df_y.values).float().squeeze()
                 
         dataset = torch.utils.data.TensorDataset(x_tab, x_text, x_img, y)
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+        data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
         
         if which_loader == 'train':
-            self.train_loader = dataloader
+            self.train_loader = data_loader
         elif which_loader == 'val':
-            self.val_loader == dataloader
+            self.val_loader == data_loader
         elif which_loader == 'test':
-            self.test_loader == dataloader
+            self.test_loader == data_loader
             
-    def get_input_dims(self, which_loader:str) -> Tuple[int, int, int]:
+    def get_input_dims(self, which_loader:str) -> tuple:
         assert which_loader in ['train', 'val', 'test']
         
         if which_loader == 'train':
-            dataloader = self.train_loader
+            data_loader = self.train_loader
         elif which_loader == 'val':
-            dataloader = self.val_loader
+            data_loader = self.val_loader
         elif which_loader == 'test':
-            dataloader = self.test_loader
+            data_loader = self.test_loader
 
-        for batch in dataloader:
+        for batch in data_loader:
             x_tab, x_text, x_img, y = batch
             x_tab_input_dim = x_tab.size()[1]
-            x_text_input_dim = x_text.size()[1]
-            x_img_input_dim = x_img.size()[1]
+            x_text_input_dim = x_text.size()[1:]
+            x_img_input_dim = x_img.size()[1:]
             break
             
         return x_tab_input_dim, x_text_input_dim, x_img_input_dim
@@ -119,6 +119,8 @@ class Trainer:
             
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
+                
+                print(f'first obs from x_tab in batch:\n{x_tab[0]}')
                 
                 x_tab.to(device)
                 x_text.to(device)

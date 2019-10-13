@@ -40,7 +40,8 @@ if __name__ == '__main__':
     model_params_path = Path(args['model_dir'])/'model_params.pt'
             
     trainer.set_model(
-        model=model, loss_func_cls=torch.nn.L1Loss, optimizer_cls=torch.optim.Adam
+        model=model, loss_func_cls=torch.nn.L1Loss, optimizer_cls=torch.optim.Adam,
+        lr=1e-5
     )
     trainer.train(epochs=args['epochs'])
        
