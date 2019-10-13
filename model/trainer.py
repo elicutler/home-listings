@@ -6,7 +6,7 @@ import torch.utils.data
 import pandas as pd
 
 from typing import Any
-from gen_utils import set_logger_defaults
+from gen_utils import set_logger_defaults, put_columns_in_order
 from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS, TEXT_COLS, IMG_COLS
 from models import PyTorchModel
 from feature_enger import FeatureEnger
@@ -82,21 +82,27 @@ class Trainer:
         elif data_file is not None:
             df = pd.read_csv(path/data_file, header=None, names=None)
             
+        assert len(df.columns) == len(COLUMN_ORDER)
         df.columns = COLUMN_ORDER
         
         feature_enger = FeatureEnger(
             df_tab=df[TAB_COLS], df_text=df[TEXT_COLS], df_img=df[IMG_COLS]
         )
         feature_enger.one_hot_encode_cat_cols()
-        feature_enger.img_arr_list_to_arr()
+#         feature_enger.img_arr_list_to_arr()
         
         df_y = df[outcome]
         
-        
-        
+#         for col in feature_enger.df_tab.columns:
+#             print(f'{col}\n{feature_enger.df_tab[col].head()}')
+#             print(f'{col}: {feature_enger.df_tab[col].dtype}')
+#         print(feature_enger.df_tab['first_listed_date'].head())
+#         print(f'feature_enger.df_tab.values.dtype={feature_enger.df_tab.values.dtype}')
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
-        x_desc = torch.from_numpy(feature_enger.df_desc.values).float().squeeze()
-        x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
+#         x_text = torch.from_numpy(feature_enger.df_desc.values).float().squeeze()
+#         x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
+        x_text = torch.from_numpy(np.array([1])).float().squeeze() # TESTING
+        x_img = torch.from_numpy(np.array([1])).float().squeeze() # TESTING
         y = torch.from_numpy(df_y.values).float().squeeze()
         
         dataset = torch.utils.data.TensorDataset(x_tab, x_desc, x_img, y)

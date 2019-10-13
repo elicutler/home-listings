@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from typing import Union
+from typing import Union, Optional
 
 from gen_utils import set_logger_defaults
 from constants import TAB_CAT_COLS
@@ -29,19 +29,23 @@ class FeatureEnger:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
         
         non_cat_cols = [c for c in self.df_tab.columns if c not in TAB_CAT_COLS]
-        non_dummies_df = self.tab_df[non_cat_cols].copy()
+        non_dummies_df = self.df_tab[non_cat_cols].copy()
         
         dummies_df = pd.get_dummies(self.df_tab[TAB_CAT_COLS], dummy_na=True)
         
         df = pd.concat([non_dummies_df, dummies_df], axis='columns', sort=False)
         self.df_tab = df
         
+#     def obj_to_numeric(self) -> None:
+#         assert self.df_tab is not None, 'first call self.set_df_tab()'
+        
+#         for c in self.df_tab.columns:
+        
     def img_arr_list_to_arr(self) -> None:
         assert self.df_img is not None, 'first call self.set_df_img()'
         
         df_img = self.df_img.applymap(lambda x: ImageDecoder(x).arr_list_to_arr())
         self.df_img = df_img
-        
     
     def set_df_tab(
         self, df_tab:Union[pd.DataFrame, np.array], overwrite:bool=False

@@ -25,9 +25,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=10)
     
-#     parser.add_argument('--s3_bucket', type=str, default='sagemaker-us-west-2-207070896583')
-#     parser.add_argument('--s3_prefix', type=str, default='home-listings')
-    
     args = vars(parser.parse_args())
     
     model = PyTorchModel(x_tab_input_dim=10)

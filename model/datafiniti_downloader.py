@@ -96,7 +96,7 @@ class DatafinitiDownloader:
         all_listings_frame = pd.DataFrame(all_listings_dict).transpose()
         listings_frame_ordered = put_columns_in_order(all_listings_frame)
         listings_frame_w_id = filter_df_missing_col(listings_frame_ordered, 'id')
-        
+
         data_id = get_unique_id(str)
         csv_path = f'../data/listings_{data_id}.csv'
         listings_frame_w_id.to_csv(csv_path, header=False, index=False)
