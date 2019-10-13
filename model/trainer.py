@@ -5,9 +5,11 @@ import torch
 import torch.utils.data
 import pandas as pd
 
-from typing import Any
+from typing import Any, Tuple
 from gen_utils import set_logger_defaults, put_columns_in_order
-from constants import COLUMN_ORDER, TAB_COLS, TAB_CAT_COLS, TEXT_COLS, IMG_COLS
+from constants import (
+    COLUMN_ORDER, TAB_FEATURES, TAB_CAT_FEATURES, TEXT_FEATURES, IMG_FEATURES
+)
 from models import PyTorchModel
 from feature_enger import FeatureEnger
 
@@ -21,9 +23,13 @@ class Trainer:
         self, model:PyTorchModel, loss_func:Any, optimizer:Any, 
         **optimizer_kwargs
     ):
+        
+        print(f'optimizer is:\n{optimizer}')
+        print(f'model params are:\n{list(model.parameters())}')
+        
         self.model = model
         self.loss_func = loss_func(reduction='sum')
-        self.optimizer = optimizer(model.parameters(), **optimizer_kwargs)
+        self.optimizer = optimizer(self.model.parameters())
         self.train_loader = None
         self.val_loader = None
         self.test_loader = None
@@ -86,26 +92,22 @@ class Trainer:
         df.columns = COLUMN_ORDER
         
         feature_enger = FeatureEnger(
-            df_tab=df[TAB_COLS], df_text=df[TEXT_COLS], df_img=df[IMG_COLS]
+            df_tab=df[TAB_FEATURES], df_text=df[TEXT_FEATURES], df_img=df[IMG_FEATURES]
         )
         feature_enger.one_hot_encode_cat_cols()
+        feature_enger.datetime_cols_to_int()
 #         feature_enger.img_arr_list_to_arr()
         
         df_y = df[outcome]
         
-#         for col in feature_enger.df_tab.columns:
-#             print(f'{col}\n{feature_enger.df_tab[col].head()}')
-#             print(f'{col}: {feature_enger.df_tab[col].dtype}')
-#         print(feature_enger.df_tab['first_listed_date'].head())
-#         print(f'feature_enger.df_tab.values.dtype={feature_enger.df_tab.values.dtype}')
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
-#         x_text = torch.from_numpy(feature_enger.df_desc.values).float().squeeze()
-#         x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
-        x_text = torch.from_numpy(np.array([1])).float().squeeze() # TESTING
-        x_img = torch.from_numpy(np.array([1])).float().squeeze() # TESTING
+#         x_text = torch.from_numpy(feature_enger.df_text.values).float().squeeze()
+#         x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()   
+        x_text = x_tab # FOR TESTING
+        x_img = x_tab # FOR TESTING
         y = torch.from_numpy(df_y.values).float().squeeze()
-        
-        dataset = torch.utils.data.TensorDataset(x_tab, x_desc, x_img, y)
+                
+        dataset = torch.utils.data.TensorDataset(x_tab, x_text, x_img, y)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
         
         if which_loader == 'train':
@@ -114,7 +116,25 @@ class Trainer:
             self.val_loader == dataloader
         elif which_loader == 'test':
             self.test_loader == dataloader
+            
+    def get__input_dims(self, which_loader:str) -> Tuple[int, int, int]:
+        assert which_loader in ['train', 'val', 'test']
         
+        if which_loader == 'train':
+            dataloader = self.train_loader
+        elif which_loader = 'val':
+            dataloader = self.val_loader
+        elif which_loader = 'test':
+            dataloader = self.test_loader
+
+        for batch in self.train_loader:
+            x_tab, x_text, x_img, y = batch
+            x_tab_input_dim = x_tab.size()[1]
+            x_text_input_dim = x_text.size()[1]
+            x_img_input_dim = x_img.size()[1]
+            break
+            
+        return x_tab_input_dim, x_text_input_dim, x_img_input_dim
         
         
         

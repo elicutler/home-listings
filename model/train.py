@@ -27,26 +27,20 @@ if __name__ == '__main__':
     
     args = vars(parser.parse_args())
     
-    model = PyTorchModel(x_tab_input_dim=10)
-    
-    trainer = Trainer(
-        model=model, loss_func=torch.nn.L1Loss, optimizer=torch.optim.Adam
-    )
-
     trainer.make_data_loader(
         which_loader='train', path=args['data_dir'], batch_size=args['batch_size'], 
         outcome='first_sold_price', concat_all=True, data_file=None
     )
+    x_tab_input_dim = trainer.get_x_tab_input_dim(which_loader='train')
+    model = PyTorchModel()
+    
+    trainer = Trainer(
+        model=model, loss_func=torch.nn.L1Loss, optimizer=torch.optim.Adam
+    )
     trainer.train(epochs=5)
     
     model_path = Path(args['model_dir'])
-    
-    model_args = {
-        'x_tab_input_dim': x_tab_input_dim
-    }
-    with open(model_path/'model_args.pt', 'wb') as file:
-        torch.save(model_args, file)
-        
+       
     with open(model_path/'model_params.pt', 'wb') as file:
         torch.save(model_params, file)
 

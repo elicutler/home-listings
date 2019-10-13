@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from typing import Union
+from typing import Union, Any
 from pathlib import Path
 from datetime import datetime
 from constants import COLUMN_ORDER
@@ -63,9 +63,14 @@ def put_columns_in_order(in_df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
+def filter_df_missing_col(
+    in_df:pd.DataFrame, col:str, missing_val:Any=np.nan
+) -> pd.DataFrame:
     df = in_df.copy()
-    df = df[df[col].notna()]
+    if missing_val == np.nan:
+        df = df[df[col].notna()]
+    else:
+        df = df[df[col] != missing_val]
     return df
 
 
