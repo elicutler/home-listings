@@ -44,11 +44,6 @@ class FeatureEnger:
         for c in TAB_DT_FEATURES:
             self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9
         
-#     def obj_to_numeric(self) -> None:
-#         assert self.df_tab is not None, 'first call self.set_df_tab()'
-        
-#         for c in self.df_tab.columns:
-        
     def img_arr_list_to_arr(self) -> None:
         assert self.df_img is not None, 'first call self.set_df_img()'
         

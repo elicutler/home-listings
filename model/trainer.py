@@ -19,54 +19,15 @@ set_logger_defaults(logger)
 
 class Trainer:
     
-    def __init__(
-        self, model:PyTorchModel, loss_func:Any, optimizer:Any, 
-        **optimizer_kwargs
-    ):
+    def __init__(self):
         
-        print(f'optimizer is:\n{optimizer}')
-        print(f'model params are:\n{list(model.parameters())}')
-        
-        self.model = model
-        self.loss_func = loss_func(reduction='sum')
-        self.optimizer = optimizer(self.model.parameters())
+        self.model = None
+        self.loss_func = None
+        self.optimizer = None
         self.train_loader = None
         self.val_loader = None
         self.test_loader = None
-    
-    def train(self, epochs:int) -> None:
-
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model.to(device)
         
-        total_train_loss_avg = []
-        
-        for e in range(1, epochs+1):
-            self.model.train()
-            
-            epoch_loss = 0
-            
-            for batch in self.train_loader:
-                x_tab, x_text, x_img, y = batch
-                
-                x_tab.to(device)
-                x_text.to(device)
-                x_img.to(device)
-                
-                self.optimizer.zero_grad()
-                y_pred = self.model.forward(x_tab, x_text, x_img)
-                
-                loss = self.loss_func(y_pred, y)
-                loss.backward()
-                self.optimizer.step()
-                
-                epoch_loss += loss.data.item()
-                
-            logger.info(f'epoch {e}/{epochs} loss: {epoch_loss}')
-            total_train_loss_avg.append(epoch_loss / len(self.train_loader))
-            
-            # TODO: calc test_loss
-
     def make_data_loader(
         self, which_loader:str, path:str, batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
@@ -117,17 +78,17 @@ class Trainer:
         elif which_loader == 'test':
             self.test_loader == dataloader
             
-    def get__input_dims(self, which_loader:str) -> Tuple[int, int, int]:
+    def get_input_dims(self, which_loader:str) -> Tuple[int, int, int]:
         assert which_loader in ['train', 'val', 'test']
         
         if which_loader == 'train':
             dataloader = self.train_loader
-        elif which_loader = 'val':
+        elif which_loader == 'val':
             dataloader = self.val_loader
-        elif which_loader = 'test':
+        elif which_loader == 'test':
             dataloader = self.test_loader
 
-        for batch in self.train_loader:
+        for batch in dataloader:
             x_tab, x_text, x_img, y = batch
             x_tab_input_dim = x_tab.size()[1]
             x_text_input_dim = x_text.size()[1]
@@ -135,6 +96,49 @@ class Trainer:
             break
             
         return x_tab_input_dim, x_text_input_dim, x_img_input_dim
+    
+    def set_model(
+        self, model:PyTorchModel, loss_func_cls:Any, optimizer_cls:Any, 
+        **optimizer_kwargs
+    ) -> None:
+        self.model = model
+        self.loss_func = loss_func_cls(reduction='sum')
+        self.optimizer = optimizer_cls(self.model.parameters(), **optimizer_kwargs)
+    
+    def train(self, epochs:int) -> None:
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.to(device)
+        
+        total_train_loss_avg = []
+        
+        for e in range(1, epochs+1):
+            self.model.train()
+            
+            epoch_loss = 0
+            
+            for batch in self.train_loader:
+                x_tab, x_text, x_img, y = batch
+                
+                x_tab.to(device)
+                x_text.to(device)
+                x_img.to(device)
+                
+                self.optimizer.zero_grad()
+                y_pred = self.model.forward(x_tab, x_text, x_img)
+                
+                loss = self.loss_func(y_pred, y)
+                loss.backward()
+                self.optimizer.step()
+                
+                epoch_loss += loss.data.item()
+                
+            logger.info(f'epoch {e}/{epochs} loss: {epoch_loss}')
+            total_train_loss_avg.append(epoch_loss / len(self.train_loader))
+            
+            # TODO: calc test_loss
+
+
         
         
         

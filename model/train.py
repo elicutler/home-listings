@@ -27,22 +27,26 @@ if __name__ == '__main__':
     
     args = vars(parser.parse_args())
     
+    trainer = Trainer()
     trainer.make_data_loader(
         which_loader='train', path=args['data_dir'], batch_size=args['batch_size'], 
         outcome='first_sold_price', concat_all=True, data_file=None
     )
-    x_tab_input_dim = trainer.get_x_tab_input_dim(which_loader='train')
-    model = PyTorchModel()
-    
-    trainer = Trainer(
-        model=model, loss_func=torch.nn.L1Loss, optimizer=torch.optim.Adam
+    x_tab_input_dim, x_text_input_dim, x_img_input_dim = (
+        trainer.get_input_dims(which_loader='train')
+    )
+    trainer.set_model(
+        model=PyTorchModel(x_tab_input_dim), loss_func_cls=torch.nn.L1Loss,
+        optimizer_cls=torch.optim.Adam
     )
     trainer.train(epochs=5)
     
     model_path = Path(args['model_dir'])
+    state_dict = trainer.model.cpu().state_dict()
        
     with open(model_path/'model_params.pt', 'wb') as file:
-        torch.save(model_params, file)
+        torch.save(state_dict, file)
+        logger.info(f'Model state_dict saved to {model_path}/model_params.pt')
 
 
 # def model_fn(model_dir:Union[Path, str]) -> PyTorchModel:
