@@ -6,7 +6,7 @@ import numpy as np
 from typing import Union, Optional
 
 from gen_utils import set_logger_defaults
-from constants import TAB_CAT_FEATURES, TAB_DT_FEATURES
+from constants import TAB_FEATURES, TAB_CAT_FEATURES, TAB_DT_FEATURES
 from image_coders import ImageDecoder
 
 logger = logging.getLogger(__name__)
@@ -43,6 +43,23 @@ class FeatureEnger:
         
         for c in TAB_DT_FEATURES:
             self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9
+            
+    def fill_numeric_nans(self, how:str='empirical_dist') -> None:
+        assert self.df_tab is not None, 'first call self.set_df_tab()'
+        assert how in ['empirical_dist']
+        
+        non_cat_cols = [
+            c for c in self.df_tab.columns if c not in TAB_CAT_FEATURES
+        ]        
+        for c in non_cat_cols:
+            if how == 'empirical_dist':
+                self._fill_numeric_nans_from_empirical_dist(c)
+
+    def _fill_numeric_nans_from_empirical_dist(self, col:str)-> None:
+        missing_rows = self.df_tab.loc[self.df_tab[col].isna(), col]
+        present_rows = self.df_tab.loc[self.df_tab[col].notna(), col]
+        
+        missing_rows = np.random.choice(present_rows, size=missing_rows.shape[0])
         
     def img_arr_list_to_arr(self) -> None:
         assert self.df_img is not None, 'first call self.set_df_img()'

@@ -12,6 +12,7 @@ from constants import (
 )
 from models import PyTorchModel
 from feature_enger import FeatureEnger
+from monitors import check_missing_pcts
 
 logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
@@ -57,9 +58,12 @@ class Trainer:
         )
         feature_enger.one_hot_encode_cat_cols()
         feature_enger.datetime_cols_to_int()
+        feature_enger.fill_numeric_nans()
 #         feature_enger.img_arr_list_to_arr()
         
         df_y = df[outcome]
+        
+        check_missing_pcts(feature_enger.df_tab)
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
 #         x_text = torch.from_numpy(feature_enger.df_text.values).float().squeeze()
@@ -119,8 +123,6 @@ class Trainer:
             
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
-                
-                print(f'first obs from x_tab in batch:\n{x_tab[0]}')
                 
                 x_tab.to(device)
                 x_text.to(device)
