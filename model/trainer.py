@@ -128,7 +128,7 @@ class Trainer:
     def train(self, epochs:int) -> None:
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model.to(device)
+        self.model = self.model.to(device)
         
         total_train_loss_avg = []
         
@@ -140,9 +140,10 @@ class Trainer:
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
                 
-                x_tab.to(device)
-                x_text.to(device)
-                x_img.to(device)
+                x_tab = x_tab.to(device)
+                x_text = x_text.to(device)
+                x_img = x_img.to(device)
+                y = y.to(device)
                 
                 self.optimizer.zero_grad()
                 y_pred = self.model.forward(x_tab, x_text, x_img)
