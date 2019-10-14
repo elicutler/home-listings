@@ -58,16 +58,16 @@ class Trainer:
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], df_text=df[TEXT_FEATURES], df_img=df[IMG_FEATURES]
         )
+        df_y = df[outcome]
+        
+        check_missing_pcts(feature_enger.df_tab)
+        check_missing_pcts(df_y)
+        
         feature_enger.one_hot_encode_cat_cols()
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
         feature_enger.drop_cols_with_all_na()
 #         feature_enger.img_arr_list_to_arr()
-        
-        df_y = df[outcome]
-        
-        check_missing_pcts(feature_enger.df_tab)
-        check_missing_pcts(df_y)
         
         assert (
             feature_enger.df_tab.shape[0] 
@@ -80,6 +80,9 @@ class Trainer:
                 feature_enger.df_tab, feature_enger.df_text, feature_enger.df_img
             ]
         )
+        
+        check_missing_pcts(feature_enger.df_tab)
+        check_missing_pcts(df_y)
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
 #         x_text = torch.from_numpy(feature_enger.df_text.values).float().squeeze()
