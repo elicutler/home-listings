@@ -37,7 +37,7 @@ if __name__ == '__main__':
     )
     model = PyTorchModel(x_tab_input_dim)
     
-    model_params_path = Path(args['model_dir'])/'model_params.pt'
+    model_params_path = args['model_dir'] + '/model_params.pt'
             
     trainer.set_model(
         model=model, loss_func_cls=torch.nn.L1Loss, 
