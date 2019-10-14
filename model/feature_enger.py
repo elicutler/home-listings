@@ -44,22 +44,33 @@ class FeatureEnger:
         for c in TAB_DT_FEATURES:
             self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9
             
+    def drop_cols_with_all_na(self) -> None:
+        assert self.df_tab is not None, 'first call self.set_df_tab()'
+        for c in self.df_tab.columns:
+            if self.df_tab[c].isna().mean() == 1:
+                self.df_tab.drop(columns=[c], inplace=True)            
+            
     def fill_all_nans(self, how:str='empirical_dist') -> None:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
         assert how in ['empirical_dist']
 
         for c in self.df_tab.columns:
-            if self.df_tab[c].isna().sum() > 0:
-                #TODO: handle case with all missing, since present_rows will be no size
+            if self.df_tab[c].isna().mean() == 1:
+                logger.warning(f'{c} has no present values. Skipping imputation.')
+                continue
+            elif self.df_tab[c].isna().sum() == 0:
+                continue
+            else:
                 if how == 'empirical_dist':
                     self._fill_nans_from_empirical_dist(c)
 
     def _fill_nans_from_empirical_dist(self, col:str)-> None:
-        print(f'col: {col}')
-        missing_rows = self.df_tab.loc[self.df_tab[col].isna(), col]
+        n_missing_rows = self.df_tab.loc[self.df_tab[col].isna(), col].shape[0]
         present_rows = self.df_tab.loc[self.df_tab[col].notna(), col]
         
-        missing_rows = np.random.choice(present_rows, size=missing_rows.shape[0])
+        self.df_tab.loc[self.df_tab[col].isna(), col] = (
+            np.random.choice(present_rows, size=n_missing_rows)
+        )
         
     def img_arr_list_to_arr(self) -> None:
         assert self.df_img is not None, 'first call self.set_df_img()'

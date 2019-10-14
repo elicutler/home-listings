@@ -6,7 +6,9 @@ import torch.utils.data
 import pandas as pd
 
 from typing import Any
-from gen_utils import set_logger_defaults, put_columns_in_order
+from gen_utils import (
+    set_logger_defaults, put_columns_in_order, remove_rows_missing_y
+)
 from constants import (
     COLUMN_ORDER, TAB_FEATURES, TAB_CAT_FEATURES, TEXT_FEATURES, IMG_FEATURES
 )
@@ -59,11 +61,25 @@ class Trainer:
         feature_enger.one_hot_encode_cat_cols()
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
+        feature_enger.drop_cols_with_all_na()
 #         feature_enger.img_arr_list_to_arr()
         
         df_y = df[outcome]
         
         check_missing_pcts(feature_enger.df_tab)
+        check_missing_pcts(df_y)
+        
+        assert (
+            feature_enger.df_tab.shape[0] 
+            == feature_enger.df_text.shape[0]
+            == feature_enger.df_img.shape[0]
+            == df_y.shape[0]
+        )
+        remove_rows_missing_y(
+            df_y, other_dfs=[
+                feature_enger.df_tab, feature_enger.df_text, feature_enger.df_img
+            ]
+        )
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
 #         x_text = torch.from_numpy(feature_enger.df_text.values).float().squeeze()
