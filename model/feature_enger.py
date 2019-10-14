@@ -44,18 +44,18 @@ class FeatureEnger:
         for c in TAB_DT_FEATURES:
             self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9
             
-    def fill_numeric_nans(self, how:str='empirical_dist') -> None:
+    def fill_all_nans(self, how:str='empirical_dist') -> None:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
         assert how in ['empirical_dist']
-        
-        non_cat_cols = [
-            c for c in self.df_tab.columns if c not in TAB_CAT_FEATURES
-        ]        
-        for c in non_cat_cols:
-            if how == 'empirical_dist':
-                self._fill_numeric_nans_from_empirical_dist(c)
 
-    def _fill_numeric_nans_from_empirical_dist(self, col:str)-> None:
+        for c in self.df_tab.columns:
+            if self.df_tab[c].isna().sum() > 0:
+                #TODO: handle case with all missing, since present_rows will be no size
+                if how == 'empirical_dist':
+                    self._fill_nans_from_empirical_dist(c)
+
+    def _fill_nans_from_empirical_dist(self, col:str)-> None:
+        print(f'col: {col}')
         missing_rows = self.df_tab.loc[self.df_tab[col].isna(), col]
         present_rows = self.df_tab.loc[self.df_tab[col].notna(), col]
         

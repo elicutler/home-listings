@@ -58,7 +58,7 @@ class Trainer:
         )
         feature_enger.one_hot_encode_cat_cols()
         feature_enger.datetime_cols_to_int()
-        feature_enger.fill_numeric_nans()
+        feature_enger.fill_all_nans()
 #         feature_enger.img_arr_list_to_arr()
         
         df_y = df[outcome]
