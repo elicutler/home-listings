@@ -20,7 +20,8 @@ if __name__ == '__main__':
     
     parser.add_argument('--output_data_dir', '-o', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
     parser.add_argument('--model_dir', '-m', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--data_dir', '-d', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--train_data_dir', '-t', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--val_data_dir', '-v', type=str, default=os.environ['SM_CHANNEL_VAL'])
     
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--epochs', '-e', type=int, default=10)
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     
     trainer = Trainer()
     trainer.make_data_loader(
-        which_loader='train', path=args['data_dir'], batch_size=args['batch_size'], 
+        which_loader='train', path=args['train_data_dir'], batch_size=args['batch_size'], 
         outcome='first_sold_price', concat_all=True, data_file=None
     )
     x_tab_input_dim, x_text_input_dim, x_img_input_dim = (

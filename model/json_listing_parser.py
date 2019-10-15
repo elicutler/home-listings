@@ -11,7 +11,7 @@ from gen_utils import set_logger_defaults
 from image_coders import ImageEncoder
 
 logger = logging.getLogger(__name__)
-set_logger_defaults(logger)
+set_logger_defaults(logger, level=logging.ERROR)
 
 class JsonListingParser:
     '''

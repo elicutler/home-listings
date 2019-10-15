@@ -60,6 +60,7 @@ class Trainer:
         )
         df_y = df[outcome]
         
+        logger.info('Missing checks BEFORE feature engineering')
         check_missing_pcts(feature_enger.df_tab)
         check_missing_pcts(df_y)
         
@@ -81,6 +82,7 @@ class Trainer:
             ]
         )
         
+        logger.info('Missing checks AFTER feature engineering')
         check_missing_pcts(feature_enger.df_tab)
         check_missing_pcts(df_y)
         
@@ -134,11 +136,12 @@ class Trainer:
         self.model = self.model.to(device)
         
         total_train_loss_avg = []
+        total_val_loss_avg = []
         
         for e in range(1, epochs+1):
             self.model.train()
             
-            epoch_loss = 0
+            epoch_train_loss = 0
             
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
@@ -150,15 +153,37 @@ class Trainer:
                 
                 self.optimizer.zero_grad()
                 y_pred = self.model.forward(x_tab, x_text, x_img)
-                
                 loss = self.loss_func(y_pred, y)
                 loss.backward()
                 self.optimizer.step()
                 
-                epoch_loss += loss.data.item()
+                epoch_train_loss += loss.data.item()
                 
-            logger.info(f'epoch {e}/{epochs} loss: {epoch_loss}')
-            total_train_loss_avg.append(epoch_loss / len(self.train_loader))
+            logger.info(f'epoch {e}/{epochs} train loss: {epoch_train_loss}')
+            total_train_loss_avg.append(epoch_train_loss / len(self.train_loader))
+            
+            with torch.no_grad():
+                self.model.eval()
+                
+                epoch_val_loss = 0
+                
+                for batch in self.val_loader:
+                    x_tab, x_text, x_img, y = batch
+
+                    x_tab = x_tab.to(device)
+                    x_text = x_text.to(device)
+                    x_img = x_img.to(device)
+                    y = y.to(device)
+                    
+                    y_pred = self.model.forward(x_tab, x_text, x_img)
+                    loss = self.loss_func(y_pred, y)
+                    
+                    epoch_val_loss += loss.data.item()
+                    
+                logger.info(f'epoch {e}/{epochs} val loss: {epoch_val_loss}')
+                total_val_loss_avg.append(epoch_val_loss / len(self.val_loader))
+                    
+                    
             
             # TODO: calc test_loss
 
