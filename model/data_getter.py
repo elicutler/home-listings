@@ -41,8 +41,7 @@ if __name__ == '__main__':
     
     mode = (
         'interactive' if len(sys.argv) > 1 and 'ipykernel' in sys.argv[0]
-        and sys.argv[1] == '-f'
-        else 'scripting'
+        and sys.argv[1] == '-f' else 'scripting'
     )
     if mode == 'interactive':
         args = parser.parse_args([]) # set args here when running interactively
@@ -61,18 +60,18 @@ if __name__ == '__main__':
         get_timeout_secs=args.get_timeout_secs
     )
     
-    logger.info('Downloading results to local machine...')
-    csv_samples = datafiniti_downloader.download_results_as_local_csv()
-    
-    s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
-    logger.info(f'Uploading results to {s3_dir}...')
-    session.upload_data(csv_samples, key_prefix=s3_dir)
-    
+    try:
+        logger.info('Downloading results to local machine...')
+        csv_samples = datafiniti_downloader.download_results_as_local_csv()
 
-    logger.info(f'Removing local data files...')
-    data_path = '../data'
-    delete_file_types(data_path, '.json')
-    delete_file_types(data_path, '.csv')
-    delete_file_types(data_path, '.jpg')
+        s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
+        logger.info(f'Uploading results to {s3_dir}...')
+        session.upload_data(csv_samples, key_prefix=s3_dir)
+    finally:
+        logger.info(f'Removing local data files...')
+        data_path = '../data'
+        delete_file_types(data_path, '.json')
+        delete_file_types(data_path, '.csv')
+        delete_file_types(data_path, '.jpg')
     
     logger.info('Finished.')
