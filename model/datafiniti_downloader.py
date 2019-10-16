@@ -85,13 +85,15 @@ class DatafinitiDownloader:
             self._unpack_to_json_files(result_filepath)
             os.remove(result_filepath)
             
-            json_listings = [
-                f for f in os.listdir(self.data_path) 
-                if f.startswith(self.json_listing_prefix) and f.endswith('.json')
-            ]
-            for f in json_listings:
-                listing_dict = self._parse_json_listing(f)
-                all_listings_dict.update({Path(f).stem: listing_dict}) 
+        json_listings = [
+            f for f in os.listdir(self.data_path) 
+            if f.startswith(self.json_listing_prefix) and f.endswith('.json')
+        ]
+        logger.info(f'Downloaded {len(json_listings)} records from Datafiniti')
+        
+        for f in json_listings:
+            listing_dict = self._parse_json_listing(f)
+            all_listings_dict.update({Path(f).stem: listing_dict}) 
         
         all_listings_frame = pd.DataFrame(all_listings_dict).transpose()
         listings_frame_ordered = put_columns_in_order(all_listings_frame)

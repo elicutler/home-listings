@@ -6,6 +6,7 @@ Data formatted in JSON.
 
 import logging
 import argparse
+import sys
 import sagemaker
 
 from gen_utils import set_logger_defaults, delete_file_types
@@ -16,6 +17,8 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 if __name__ == '__main__':
+    del sys.argv[1:] # clear out args so pythond doesn't throw error when running interactively
+    
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--num_records', '-n', type=int, default=1, 
@@ -36,22 +39,32 @@ if __name__ == '__main__':
             ' Typically "train", "val", or "test".'
         )
     )
-    args = vars(parser.parse_args())
+    args = parser.parse_args()
     
+    logger.info(f'{args}')
+    
+    logger.info('Initializing Sagemaker session...')
     session = sagemaker.Session()
     role = sagemaker.get_execution_role()
     
     datafiniti_downloader = DatafinitiDownloader(
-        num_records=args['num_records'],
-        query_today_updates_only=args['query_today_updates_only'],
-        get_timeout_secs=args['get_timeout_secs']
+        num_records=args.num_records,
+        query_today_updates_only=args.query_today_updates_only,
+        get_timeout_secs=args.get_timeout_secs
     )
+    
+    logger.info('Downloading results to local machine...')
     csv_samples = datafiniti_downloader.download_results_as_local_csv()
-    session.upload_data(
-        csv_samples, key_prefix=f'{S3_PREFIX}/{args["s3_subfolder"]}'
-    )
+    
+    s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
+    logger.info(f'Uploading results to {s3_dir}...')
+    session.upload_data(csv_samples, key_prefix=s3_dir)
+    
 
+    logger.info(f'Removing local data files...')
     data_path = '../data'
     delete_file_types(data_path, '.json')
     delete_file_types(data_path, '.csv')
+    delete_file_types(data_path, '.jpg')
+    
     logger.info('Finished.')
