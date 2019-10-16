@@ -26,11 +26,11 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--epochs', '-e', type=int, default=10)
     
-    args = vars(parser.parse_args())
+    args = parser.parse_args()
     
     trainer = Trainer()
     trainer.make_data_loader(
-        which_loader='train', path=args['train_data_dir'], batch_size=args['batch_size'], 
+        which_loader='train', path=args.train_data_dir, batch_size=args.batch_size, 
         outcome='first_sold_price', concat_all=True, data_file=None
     )
     x_tab_input_dim, x_text_input_dim, x_img_input_dim = (
@@ -38,13 +38,13 @@ if __name__ == '__main__':
     )
     model = PyTorchModel(x_tab_input_dim)
     
-    model_params_path = args['model_dir'] + '/model_params.pt'
+    model_params_path = args.model_dir + '/model_params.pt'
             
     trainer.set_model(
         model=model, loss_func_cls=torch.nn.L1Loss, 
         optimizer_cls=torch.optim.Adam, lr=1e-5
     )
-    trainer.train(epochs=args['epochs'])
+    trainer.train(epochs=args.epochs)
        
     with open(model_params_path, 'wb') as file:
         torch.save(trainer.model.cpu().state_dict(), file)
