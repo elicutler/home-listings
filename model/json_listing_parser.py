@@ -99,7 +99,7 @@ class JsonListingParser:
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         img_link = jpg_image_links[0]
-        img_local = Path(img_link).name
+        img_local = Path(f'../data/{Path(img_link).name}')
         img_encoder = ImageEncoder(img_link, img_local)
         img_arr_list = img_encoder.img_to_arr_list()
         
