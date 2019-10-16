@@ -92,7 +92,8 @@ class DatafinitiDownloader:
         ]
         logger.info(f'Downloaded {len(json_listings)} records from Datafiniti')
         
-        for f in json_listings:
+        for i, f in enumerate(json_listings):
+            logger.info(f'Parsing listing {i/len(json_listings)}')
             listing_dict = self._parse_json_listing(f)
             all_listings_dict.update({Path(f).stem: listing_dict}) 
         
@@ -149,13 +150,13 @@ class DatafinitiDownloader:
         # record, but as a whole the file is not valid JSON. The following
         # block writes each line in into its own - valid - JSON file.
         with open(result_filepath, 'r') as read_file:
-            logger.info(f'Reading results set from {result_filepath}')
+            logger.info(f'Reading results set from {result_filepath.resolve()}')
             for line in read_file:
                 file_id = get_unique_id(str)
                 listing_filepath = self.data_path/f'{self.json_listing_prefix}_{file_id}.json'
                 
                 with open(listing_filepath, 'w') as write_file:
-                    logger.info(f'Writing listing result to {listing_filepath}')
+                    logger.info(f'Writing listing result to {listing_filepath.resolve()}')
                     write_file.write(line)
         
     def _parse_json_listing(self, filepath:Union[str, Path]) -> dict:
