@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 set_logger_defaults(logger)
 
 if __name__ == '__main__':
-    del sys.argv[1:] # clear out args so pythond doesn't throw error when running interactively
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -39,7 +38,16 @@ if __name__ == '__main__':
             ' Typically "train", "val", or "test".'
         )
     )
-    args = parser.parse_args()
+    
+    mode = (
+        'interactive' if len(sys.argv) > 1 and 'ipykernel' in sys.argv[0]
+        and sys.argv[1] == '-f'
+        else 'scripting'
+    )
+    if mode == 'interactive':
+        args = parser.parse_args([]) # set args here when running interactively
+    else:
+        args = parser.parse_args()
     
     logger.info(f'{args}')
     
