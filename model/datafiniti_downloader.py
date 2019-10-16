@@ -112,7 +112,6 @@ class DatafinitiDownloader:
         return results
     
     def _send_post_req(self) -> int:
-        logger.info('Sending POST request to Datafiniti...')
         post_resp_obj = requests.post(
             'https://api.datafiniti.co/v4/properties/search',
             json=self.request_data, headers=self.request_headers
@@ -127,7 +126,6 @@ class DatafinitiDownloader:
         start_time = time.time()
         
         while status != 'completed':
-            logger.info('Sending GET request to Datafiniti...')
             get_resp_obj = requests.get(
                 f'https://api.datafiniti.co/v4/downloads/{download_id}', 
                 headers=self.request_headers
