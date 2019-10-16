@@ -77,6 +77,7 @@ class DatafinitiDownloader:
     def download_results_as_local_csv(self) -> str:
         all_listings_dict = {}
         results = self._summon_data()
+        logger.info(f'Unlocked {len(results)} sets of results.')
         
         for res in results:
             result_filepath = self.data_path/'results_group.txt'
@@ -110,6 +111,7 @@ class DatafinitiDownloader:
         return results
     
     def _send_post_req(self) -> int:
+        logger.info('Sending POST request to Datafiniti...')
         post_resp_obj = requests.post(
             'https://api.datafiniti.co/v4/properties/search',
             json=self.request_data, headers=self.request_headers
@@ -124,6 +126,7 @@ class DatafinitiDownloader:
         start_time = time.time()
         
         while status != 'completed':
+            logger.info('Sending GET request to Datafiniti...')
             get_resp_obj = requests.get(
                 f'https://api.datafiniti.co/v4/downloads/{download_id}', 
                 headers=self.request_headers
@@ -146,11 +149,13 @@ class DatafinitiDownloader:
         # record, but as a whole the file is not valid JSON. The following
         # block writes each line in into its own - valid - JSON file.
         with open(result_filepath, 'r') as read_file:
+            logger.info(f'Reading results set from {result_filepath}')
             for line in read_file:
                 file_id = get_unique_id(str)
                 listing_filepath = self.data_path/f'{self.json_listing_prefix}_{file_id}.json'
                 
                 with open(listing_filepath, 'w') as write_file:
+                    logger.info(f'Writing listing result to {listing_filepath}')
                     write_file.write(line)
         
     def _parse_json_listing(self, filepath:Union[str, Path]) -> dict:
