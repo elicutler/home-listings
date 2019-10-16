@@ -60,7 +60,7 @@ if __name__ == '__main__':
         get_timeout_secs=args.get_timeout_secs
     )
     
-    try:
+    try: # occasionally gets Killed 
         logger.info('Downloading results to local machine...')
         csv_samples = datafiniti_downloader.download_results_as_local_csv()
 

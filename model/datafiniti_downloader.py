@@ -92,7 +92,7 @@ class DatafinitiDownloader:
         ]
         logger.info(f'Downloaded {len(json_listings)} records from Datafiniti')
         
-        for i, f in enumerate(json_listings):
+        for i, f in enumerate(json_listings, start=1):
             logger.info(f'Parsing listing {i}/{len(json_listings)}')
             listing_dict = self._parse_json_listing(f)
             all_listings_dict.update({Path(f).stem: listing_dict}) 
