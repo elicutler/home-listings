@@ -44,7 +44,9 @@ if __name__ == '__main__':
         and sys.argv[1] == '-f' else 'scripting'
     )
     if mode == 'interactive':
-        args = parser.parse_args([]) # set args here when running interactively
+        args = parser.parse_args([ # set args here when running interactively
+            '--s3_subfolder', 'val'            
+        ]) 
     else:
         args = parser.parse_args()
     
@@ -59,19 +61,18 @@ if __name__ == '__main__':
         query_today_updates_only=args.query_today_updates_only,
         get_timeout_secs=args.get_timeout_secs
     )
-    
-    try: # occasionally gets Killed 
-        logger.info('Downloading results to local machine...')
-        csv_samples = datafiniti_downloader.download_results_as_local_csv()
 
-        s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
-        logger.info(f'Uploading results to {s3_dir}...')
-        session.upload_data(csv_samples, key_prefix=s3_dir)
-    finally:
-        logger.info(f'Removing local data files...')
-        data_path = '../data'
-        delete_file_types(data_path, '.json')
-        delete_file_types(data_path, '.csv')
-        delete_file_types(data_path, '.jpg')
+    logger.info('Downloading results to local machine...')
+    csv_samples = datafiniti_downloader.download_results_as_local_csv()
+
+    s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
+    logger.info(f'Uploading results to {s3_dir}...')
+    session.upload_data(csv_samples, key_prefix=s3_dir)
+
+    logger.info(f'Removing local data files...')
+    data_path = '../data'
+    delete_file_types(data_path, '.json')
+    delete_file_types(data_path, '.csv')
+    delete_file_types(data_path, '.jpg')
     
     logger.info('Finished.')
