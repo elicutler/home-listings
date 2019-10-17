@@ -41,7 +41,6 @@ class Trainer:
         assert int(concat_all) + int(data_file is not None) == 1, (
             'Failed to satisfy: concat_all==True XOR data_file is not None'
         )        
-        
         if concat_all:
             df_list = [
                 pd.read_csv(f'{path}/{f}', header=None, names=None)
@@ -68,6 +67,7 @@ class Trainer:
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
         feature_enger.drop_cols_with_all_na()
+#         feature_enger.tab_features_to_numeric()
 #         feature_enger.img_arr_list_to_arr()
         
         assert (
@@ -87,8 +87,6 @@ class Trainer:
         check_missing_pcts(df_y)
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
-#         x_text = torch.from_numpy(feature_enger.df_text.values).float().squeeze()
-#         x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()   
         x_text = x_tab # FOR TESTING
         x_img = x_tab # FOR TESTING
         y = torch.from_numpy(df_y.values).float().squeeze()
@@ -183,9 +181,6 @@ class Trainer:
                 logger.info(f'epoch {e}/{epochs} val loss: {epoch_val_loss}')
                 total_val_loss_avg.append(epoch_val_loss / len(self.val_loader))
                     
-                    
-            
-            # TODO: calc test_loss
 
 
         

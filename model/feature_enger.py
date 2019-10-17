@@ -6,7 +6,7 @@ import numpy as np
 from typing import Union, Optional
 
 from gen_utils import set_logger_defaults
-from constants import TAB_FEATURES, TAB_CAT_FEATURES, TAB_DT_FEATURES
+from constants import TAB_CAT_FEATURES, TAB_DT_FEATURES
 from image_coders import ImageDecoder
 
 logger = logging.getLogger(__name__)
@@ -64,13 +64,13 @@ class FeatureEnger:
                 if how == 'empirical_dist':
                     self._fill_nans_from_empirical_dist(c)
 
-    def _fill_nans_from_empirical_dist(self, col:str)-> None:
+    def _fill_nans_from_empirical_dist(self, col:str) -> None:
         n_missing_rows = self.df_tab.loc[self.df_tab[col].isna(), col].shape[0]
         present_rows = self.df_tab.loc[self.df_tab[col].notna(), col]
         
         self.df_tab.loc[self.df_tab[col].isna(), col] = (
             np.random.choice(present_rows, size=n_missing_rows)
-        )
+        )        
         
     def img_arr_list_to_arr(self) -> None:
         assert self.df_img is not None, 'first call self.set_df_img()'
