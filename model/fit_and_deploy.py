@@ -16,7 +16,7 @@ estimator = PyTorch(
     framework_version='1.1', hyperparameters={**hypers}
 )
 estimator.fit({
-    'train_data_dir': f's3://{bucket}/{S3_PREFIX}/train',
-    'val_data_dir': f's3://{bucket}/{S3_PREFIX}/val'
+    'train_dir': f's3://{bucket}/{S3_PREFIX}/train',
+    'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
 })
 

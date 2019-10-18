@@ -20,8 +20,8 @@ if __name__ == '__main__':
     
     parser.add_argument('--output_data_dir', '-o', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
     parser.add_argument('--model_dir', '-m', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--train_data_dir', '-t', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
-    parser.add_argument('--val_data_dir', '-v', type=str)
+    parser.add_argument('--train_dir', '-t', type=str, default=os.environ['SM_CHANNEL_TRAIN_DIR'])
+    parser.add_argument('--val_dir', '-v', type=str, default=os.environ['SM_CHANNEL_VAL_DIR'])
     
     parser.add_argument('--outcome', '-O', type=str, default='first_sold_price')
     parser.add_argument('--batch_size', '-b', type=int, default=64)
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     
     trainer = Trainer()
     trainer.make_data_loader(
-        which_loader='train', path=args.train_data_dir, batch_size=args.batch_size, 
+        which_loader='train', path=args.train_dir, batch_size=args.batch_size, 
         outcome=args.outcome, concat_all=True, data_file=None
     )
     x_tab_input_dim, x_text_input_dim, x_img_input_dim = (
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     model = PyTorchModel(x_tab_input_dim)
     
     trainer.make_data_loader(
-        which_loader='val', path=args.val_data_dir, batch_size=args.batch_size,
+        which_loader='val', path=args.val_dir, batch_size=args.batch_size,
         outcome=args.outcome, concat_all=True, data_file=None
     )
     

@@ -97,9 +97,9 @@ class Trainer:
         if which_loader == 'train':
             self.train_loader = data_loader
         elif which_loader == 'val':
-            self.val_loader == data_loader
+            self.val_loader = data_loader
         elif which_loader == 'test':
-            self.test_loader == data_loader
+            self.test_loader = data_loader
             
     def get_input_dims(self, which_loader:str) -> tuple:
         assert which_loader in ['train', 'val', 'test']
@@ -140,7 +140,7 @@ class Trainer:
             self.model.train()
             
             epoch_train_loss = 0
-            
+                       
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
                 
