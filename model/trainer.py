@@ -144,6 +144,12 @@ class Trainer:
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
                 
+                print(
+                    f'train dimensions\n'
+                    f'x_tab: {x_tab.size()}\n'
+                    f'y: {y_tab.size()}'
+                )
+                
                 x_tab = x_tab.to(device)
                 x_text = x_text.to(device)
                 x_img = x_img.to(device)
@@ -167,6 +173,12 @@ class Trainer:
                 
                 for batch in self.val_loader:
                     x_tab, x_text, x_img, y = batch
+                    
+                print(
+                    f'val dimensions\n'
+                    f'x_tab: {x_tab.size()}\n'
+                    f'y: {y_tab.size()}'
+                )
 
                     x_tab = x_tab.to(device)
                     x_text = x_text.to(device)
