@@ -15,8 +15,10 @@ estimator = PyTorch(
     train_instance_count=1, train_instance_type='local',
     framework_version='1.1', hyperparameters={**hypers}
 )
-estimator.fit({
-    'train_dir': f's3://{bucket}/{S3_PREFIX}/train',
-    'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
-})
-import os; os.system('rm -rf /tmp')
+try:
+    estimator.fit({
+        'train_dir': f's3://{bucket}/{S3_PREFIX}/train',
+        'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
+    })
+finally:
+    import os; os.system('rm -rf /tmp')

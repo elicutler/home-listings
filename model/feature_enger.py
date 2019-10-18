@@ -42,13 +42,7 @@ class FeatureEnger:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
         
         for c in TAB_DT_FEATURES:
-            self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9
-            
-    def drop_cols_with_all_na(self) -> None:
-        assert self.df_tab is not None, 'first call self.set_df_tab()'
-        for c in self.df_tab.columns:
-            if self.df_tab[c].isna().mean() == 1:
-                self.df_tab.drop(columns=[c], inplace=True)            
+            self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9           
             
     def fill_all_nans(self, how:str='empirical_dist') -> None:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
@@ -56,8 +50,8 @@ class FeatureEnger:
 
         for c in self.df_tab.columns:
             if self.df_tab[c].isna().mean() == 1:
-                logger.warning(f'{c} has no present values. Skipping imputation.')
-                continue
+                logger.warning(f'{c} has no present values. Imputing all zeros.')
+                self.df_tab[c] = 0
             elif self.df_tab[c].isna().sum() == 0:
                 continue
             else:

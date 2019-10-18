@@ -60,13 +60,12 @@ class Trainer:
         df_y = df[outcome]
         
         logger.info('Missing checks BEFORE feature engineering')
-        check_missing_pcts(feature_enger.df_tab)
-        check_missing_pcts(df_y)
+#         check_missing_pcts(feature_enger.df_tab)
+#         check_missing_pcts(df_y)
         
         feature_enger.one_hot_encode_cat_cols()
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
-        feature_enger.drop_cols_with_all_na()
 #         feature_enger.tab_features_to_numeric()
 #         feature_enger.img_arr_list_to_arr()
         
@@ -83,8 +82,8 @@ class Trainer:
         )
         
         logger.info('Missing checks AFTER feature engineering')
-        check_missing_pcts(feature_enger.df_tab)
-        check_missing_pcts(df_y)
+#         check_missing_pcts(feature_enger.df_tab)
+#         check_missing_pcts(df_y)
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
         x_text = x_tab # FOR TESTING
@@ -147,7 +146,7 @@ class Trainer:
                 print(
                     f'train dimensions\n'
                     f'x_tab: {x_tab.size()}\n'
-                    f'y: {y_tab.size()}'
+                    f'y: {y.size()}'
                 )
                 
                 x_tab = x_tab.to(device)
@@ -174,11 +173,11 @@ class Trainer:
                 for batch in self.val_loader:
                     x_tab, x_text, x_img, y = batch
                     
-                print(
-                    f'val dimensions\n'
-                    f'x_tab: {x_tab.size()}\n'
-                    f'y: {y_tab.size()}'
-                )
+                    print(
+                        f'val dimensions\n'
+                        f'x_tab: {x_tab.size()}\n'
+                        f'y: {y.size()}'
+                    )
 
                     x_tab = x_tab.to(device)
                     x_text = x_text.to(device)
