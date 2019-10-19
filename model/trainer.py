@@ -62,7 +62,7 @@ class Trainer:
         )
         df_y = df[outcome]
         
-        logger.info('Missing checks BEFORE feature engineering')
+#         logger.info('Missing checks BEFORE feature engineering')
 #         check_missing_pcts(feature_enger.df_tab)
 #         check_missing_pcts(df_y)
         
@@ -90,7 +90,7 @@ class Trainer:
             ]
         )
         
-        logger.info('Missing checks AFTER feature engineering')
+#         logger.info('Missing checks AFTER feature engineering')
 #         check_missing_pcts(feature_enger.df_tab)
 #         check_missing_pcts(df_y)
         

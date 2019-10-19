@@ -46,7 +46,11 @@ class FeatureEnger:
         if mode == 'train':
             self.df_tab = df
             self.df_tab_cols_train = self.df_tab.columns
+            
         elif mode in ['val', 'test']:
+            train_cols_not_in_df = [c for c in train_cols if c not in df.columns]
+            for c in train_cols_not_in_df:
+                df[c] = 0
             self.df_tab = df[train_cols]
             
     def get_df_tab_cols_train(self) -> Union[pd.Index, np.array, list]:
