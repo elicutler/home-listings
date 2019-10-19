@@ -111,17 +111,12 @@ class Trainer:
         elif which_loader == 'test':
             self.test_loader = data_loader
             
-    def get_input_dims(self, which_loader:str) -> tuple:
-        assert which_loader in ['train', 'val', 'test']
-        
-        if which_loader == 'train':
-            data_loader = self.train_loader
-        elif which_loader == 'val':
-            data_loader = self.val_loader
-        elif which_loader == 'test':
-            data_loader = self.test_loader
+        logger.info(f'N obs loaded for {which_loader}_loader: {len(dataset)}')
+            
+    def get_input_dims(self) -> tuple:
+        assert selfl.train_loader is not None
 
-        for batch in data_loader:
+        for batch in self.train_loader:
             x_tab, x_text, x_img, y = batch
             x_tab_input_dim = x_tab.size()[1]
             x_text_input_dim = x_text.size()[1:]
@@ -149,16 +144,11 @@ class Trainer:
         for e in range(1, epochs+1):
             self.model.train()
             
-            epoch_train_loss = 0
+            epoch_train_loss_sum = 0
+            epoch_train_loss_nobs = 0
                        
             for batch in self.train_loader:
                 x_tab, x_text, x_img, y = batch
-                
-                print(
-                    f'train dimensions\n'
-                    f'x_tab: {x_tab.size()}\n'
-                    f'y: {y.size()}'
-                )
                 
                 x_tab = x_tab.to(device)
                 x_text = x_text.to(device)
@@ -171,24 +161,22 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
                 
-                epoch_train_loss += loss.data.item()
+                epoch_train_loss_sum += loss.data.item()
+                epoch_train_loss_nobs += y_pred.size()[0]
+                    
+            epoch_train_loss_avg = epoch_train_loss_sum / epoch_train_loss_nobs
                 
-            logger.info(f'epoch {e}/{epochs} train loss: {epoch_train_loss}')
-            total_train_loss_avg.append(epoch_train_loss / len(self.train_loader))
+            logger.info(f'epoch {e}/{epochs} train loss: {epoch_train_loss_avg}')
+            total_train_loss_avg.append(epoch_train_loss_avg)
             
             with torch.no_grad():
                 self.model.eval()
                 
-                epoch_val_loss = 0
+                epoch_val_loss_sum = 0
+                epoch_val_loss_nobs = 0
                 
                 for batch in self.val_loader:
                     x_tab, x_text, x_img, y = batch
-                    
-                    print(
-                        f'val dimensions\n'
-                        f'x_tab: {x_tab.size()}\n'
-                        f'y: {y.size()}'
-                    )
 
                     x_tab = x_tab.to(device)
                     x_text = x_text.to(device)
@@ -198,10 +186,13 @@ class Trainer:
                     y_pred = self.model.forward(x_tab, x_text, x_img)
                     loss = self.loss_func(y_pred, y)
                     
-                    epoch_val_loss += loss.data.item()
+                    epoch_val_loss_sum += loss.data.item()
+                    epoch_val_loss_nobs += y_pred.size()[0]
                     
-                logger.info(f'epoch {e}/{epochs} val loss: {epoch_val_loss}')
-                total_val_loss_avg.append(epoch_val_loss / len(self.val_loader))
+                epoch_val_loss_avg = epoch_val_loss_sum / epoch_val_loss_nobs
+
+                logger.info(f'epoch {e}/{epochs} train loss: {epoch_val_loss_avg}')
+                total_train_loss_avg.append(epoch_val_loss_avg)
                     
 
 

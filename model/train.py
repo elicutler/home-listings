@@ -48,9 +48,7 @@ if __name__ == '__main__':
         which_loader='train', path=args.train_dir, batch_size=args.batch_size, 
         outcome=args.outcome, concat_all=True, data_file=None
     )
-    x_tab_input_dim, x_text_input_dim, x_img_input_dim = (
-        trainer.get_input_dims(which_loader='train')
-    )
+    x_tab_input_dim, x_text_input_dim, x_img_input_dim = trainer.get_input_dims()
     model = PyTorchModel(x_tab_input_dim)
     
     trainer.make_data_loader(
