@@ -69,10 +69,12 @@ class Trainer:
         if which_loader == 'train':
             feature_enger.one_hot_encode_cat_cols(which_loader)
             self.df_tab_cols_train = feature_enger.get_df_tab_cols_train()
+            
         elif which_loader in ['val', 'test']:
             feature_enger.one_hot_encode_cat_cols(
                 mode=which_loader, train_cols=self.df_tab_cols_train
             )
+            
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
 #         feature_enger.tab_features_to_numeric()
