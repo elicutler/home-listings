@@ -49,6 +49,8 @@ if __name__ == '__main__':
         ]) 
     else:
         args = parser.parse_args()
+        
+    assert args.s3_subfolder in ['train', 'val', 'test']
     
     logger.info(f'{args}')
     
