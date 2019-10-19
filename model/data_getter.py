@@ -62,17 +62,18 @@ if __name__ == '__main__':
         get_timeout_secs=args.get_timeout_secs
     )
 
-    logger.info('Downloading results to local machine...')
-    csv_samples = datafiniti_downloader.download_results_as_local_csv()
+    try:
+        logger.info('Downloading results to local machine...')
+        csv_samples = datafiniti_downloader.download_results_as_local_csv()
 
-    s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
-    logger.info(f'Uploading results to {s3_dir}...')
-    session.upload_data(csv_samples, key_prefix=s3_dir)
-
-    logger.info(f'Removing local data files...')
-    data_path = '../data'
-    delete_file_types(data_path, '.json')
-    delete_file_types(data_path, '.csv')
-    delete_file_types(data_path, '.jpg')
+        s3_dir = f'{S3_PREFIX}/{args.s3_subfolder}'
+        logger.info(f'Uploading results to {s3_dir}...')
+        session.upload_data(csv_samples, key_prefix=s3_dir)
+    finally:
+        logger.info(f'Removing local data files...')
+        data_path = '../data'
+        delete_file_types(data_path, '.json')
+        delete_file_types(data_path, '.csv')
+        delete_file_types(data_path, '.jpg')
     
     logger.info('Finished.')

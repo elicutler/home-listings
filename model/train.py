@@ -18,10 +18,22 @@ set_logger_defaults(logger)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output_data_dir', '-o', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
-    parser.add_argument('--model_dir', '-m', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--train_dir', '-t', type=str, default=os.environ['SM_CHANNEL_TRAIN_DIR'])
-    parser.add_argument('--val_dir', '-v', type=str, default=os.environ['SM_CHANNEL_VAL_DIR'])
+    parser.add_argument(
+        '--output_data_dir', '-o', type=str, 
+        default=os.environ['SM_OUTPUT_DATA_DIR']
+    )
+    parser.add_argument(
+        '--model_dir', '-m', type=str, 
+        default=os.environ['SM_MODEL_DIR']
+    )
+    parser.add_argument(
+        '--train_dir', '-t', type=str, 
+        default=os.environ['SM_CHANNEL_TRAIN_DIR']
+    )
+    parser.add_argument(
+        '--val_dir', '-v', type=str, 
+        default=os.environ['SM_CHANNEL_VAL_DIR']
+    )
     
     parser.add_argument('--outcome', '-O', type=str, default='first_sold_price')
     parser.add_argument('--batch_size', '-b', type=int, default=64)
