@@ -31,6 +31,8 @@ class Trainer:
         self.val_loader = None
         self.test_loader = None
         
+        self.df_tab_cols_train = None
+        
     def make_data_loader(
         self, which_loader:str, path:str, batch_size:int, outcome:str,
         concat_all:bool=True, data_file:str=None
@@ -55,7 +57,8 @@ class Trainer:
         df.columns = COLUMN_ORDER
         
         feature_enger = FeatureEnger(
-            df_tab=df[TAB_FEATURES], df_text=df[TEXT_FEATURES], df_img=df[IMG_FEATURES]
+            df_tab=df[TAB_FEATURES], df_text=df[TEXT_FEATURES], 
+            df_img=df[IMG_FEATURES]
         )
         df_y = df[outcome]
         
@@ -63,7 +66,13 @@ class Trainer:
 #         check_missing_pcts(feature_enger.df_tab)
 #         check_missing_pcts(df_y)
         
-        feature_enger.one_hot_encode_cat_cols()
+        if which_loader == 'train':
+            feature_enger.one_hot_encode_cat_cols(which_loader)
+            self.df_tab_cols_train = feature_enger.get_df_tab_cols_train()
+        elif which_loader in ['val', 'test']:
+            feature_enger.one_hot_encode_cat_cols(
+                mode=which_loader, train_cols=self.df_tab_cols_train
+            )
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
 #         feature_enger.tab_features_to_numeric()

@@ -1,4 +1,5 @@
 
+import os
 import sagemaker
 
 from sagemaker.pytorch import PyTorch
@@ -21,4 +22,4 @@ try:
         'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
     })
 finally:
-    import os; os.system('rm -rf /tmp')
+    os.system('rm -rf /tmp')

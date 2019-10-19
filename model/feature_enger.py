@@ -24,9 +24,15 @@ class FeatureEnger:
         self.df_tab = None if df_tab is None else df_tab.copy()
         self.df_text = None if df_text is None else df_text.copy()
         self.df_img = None if df_img is None else df_img.copy()
+        self.df_tab_cols_train = None
         
-    def one_hot_encode_cat_cols(self) -> None:
+    def one_hot_encode_cat_cols(
+        self, mode:str='train', train_cols=Optional[Union[pd.Index, np.array, list]],
+    ) -> None:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
+        assert mode in ['train', 'val', 'test']
+        if mode in ['val', 'test']:
+            assert train_cols is not None, 'Need to provide columns from training set'
         
         non_cat_cols = [
             c for c in self.df_tab.columns if c not in TAB_CAT_FEATURES
@@ -36,7 +42,19 @@ class FeatureEnger:
         dummies_df = pd.get_dummies(self.df_tab[TAB_CAT_FEATURES], dummy_na=True)
         
         df = pd.concat([non_dummies_df, dummies_df], axis='columns', sort=False)
-        self.df_tab = df
+        
+        if mode == 'train':
+            self.df_tab = df
+            self.df_tab_cols_train = self.df_tab.columns
+        elif mode in ['val', 'test']:
+            self.df_tab = df[train_cols]
+            
+    def get_df_tab_cols_train(self) -> Union[pd.Index, np.array, list]:
+        assert self.df_tab_cols_train is not None, (
+            'df_tab_cols_train not set. First call one_hot_encode_cat_cols()'
+            ' with mode="train"'
+        )
+        return self.df_tab_cols_train
         
     def datetime_cols_to_int(self) -> None:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
