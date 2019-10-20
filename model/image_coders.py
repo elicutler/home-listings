@@ -46,18 +46,24 @@ class ImageDecoder:
     '''
     Convert image from nested list -> numpy array -> PIL.Image.Image
     '''
-    def __init__(self, arr_list:list):
-        self.arr_list = arr_list
+    def __init__(self, arr_list_str:Union[str, float]):
+        self.arr_list_str = arr_list_str
+        self.arr_shape = None
         
-    def arr_list_to_arr(self) -> np.array:
-        img_arr = np.array(ast.literal_eval(self.arr_list), dtype='uint8')
+    def arr_list_str_to_arr(self) -> np.array:
+        if isinstance(self.arr_list_str, str):
+            img_arr = np.array(ast.literal_eval(self.arr_list_str), dtype='uint8')
+            if self.arr_shape is None:
+                self.arr_shape = img_arr.shape
+        elif isinstance(self.arr_list_str, float) and np.isnan(self.arr_list_str):
+            img_arr = np.zeros(self.arr_shape)
         return img_arr
     
     def arr_to_image(self, img_arr:np.array) -> Image.Image:
         img = Image.fromarray(img_arr)
         return img
         
-    def arr_list_to_image(self) -> Image.Image:
-        img_arr = self.arr_list_to_arr()
+    def arr_list_str_to_image(self) -> Image.Image:
+        img_arr = self.arr_list_str_to_arr()
         img = self.arr_to_image(img_arr)
         return img

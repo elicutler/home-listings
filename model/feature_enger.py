@@ -88,10 +88,10 @@ class FeatureEnger:
             np.random.choice(present_rows, size=n_missing_rows)
         )        
         
-    def img_arr_list_to_arr(self) -> None:
+    def img_arr_list_str_to_arr(self) -> None:
         assert self.df_img is not None, 'first call self.set_df_img()'
         
-        df_img = self.df_img.applymap(lambda x: ImageDecoder(x).arr_list_to_arr())
+        df_img = self.df_img.applymap(lambda x: ImageDecoder(x).arr_list_str_to_arr())
         self.df_img = df_img
     
     def set_df_tab(

@@ -77,8 +77,7 @@ class Trainer:
             
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_nans()
-#         feature_enger.tab_features_to_numeric()
-#         feature_enger.img_arr_list_to_arr()
+        feature_enger.img_arr_list_str_to_arr()
         
         assert (
             feature_enger.df_tab.shape[0] 
@@ -92,17 +91,15 @@ class Trainer:
             ]
         )
         
-#         logger.info('Missing checks AFTER feature engineering')
-#         check_missing_pcts(feature_enger.df_tab)
-#         check_missing_pcts(df_y)
-        
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
         x_text = x_tab # FOR TESTING
-        x_img = x_tab # FOR TESTING
+        x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
         y = torch.from_numpy(df_y.values).float().squeeze()
                 
         dataset = torch.utils.data.TensorDataset(x_tab, x_text, x_img, y)
         data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+        
+        logger.info(f'N obs loaded in {which_loader}_loader: {len(dataset)}')
         
         if which_loader == 'train':
             self.train_loader = data_loader
@@ -111,10 +108,8 @@ class Trainer:
         elif which_loader == 'test':
             self.test_loader = data_loader
             
-        logger.info(f'N obs loaded for {which_loader}_loader: {len(dataset)}')
-            
     def get_input_dims(self) -> tuple:
-        assert selfl.train_loader is not None
+        assert self.train_loader is not None
 
         for batch in self.train_loader:
             x_tab, x_text, x_img, y = batch

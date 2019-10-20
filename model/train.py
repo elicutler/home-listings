@@ -49,7 +49,7 @@ if __name__ == '__main__':
         outcome=args.outcome, concat_all=True, data_file=None
     )
     x_tab_input_dim, x_text_input_dim, x_img_input_dim = trainer.get_input_dims()
-    model = PyTorchModel(x_tab_input_dim)
+    model = PyTorchModel(x_tab_input_dim, x_text_input_dim, x_img_input_dim)
     
     trainer.make_data_loader(
         which_loader='val', path=args.val_dir, batch_size=args.batch_size,
