@@ -6,7 +6,7 @@ import numpy as np
 from typing import Union, Optional
 
 from gen_utils import set_logger_defaults
-from constants import TAB_CAT_FEATURES, TAB_DT_FEATURES
+from constants import TAB_CAT_FEATURES, TAB_DT_FEATURES, IMG_FEATURE
 from image_coders import ImageDecoder
 
 logger = logging.getLogger(__name__)
@@ -17,13 +17,13 @@ class FeatureEnger:
         
     def __init__(
         self, df_tab:Optional[Union[pd.DataFrame, np.array]]=None,
-        df_text:Optional[Union[pd.DataFrame, np.array]]=None,
-        df_img:Optional[Union[pd.DataFrame, np.array]]=None,
+        ser_text:Optional[Union[pd.Series, np.array]]=None,
+        ser_img:Optional[Union[pd.Series, np.array]]=None,
         img_decoder:Optional[ImageDecoder]=None
     ):
         self.df_tab = None if df_tab is None else df_tab.copy()
-        self.df_text = None if df_text is None else df_text.copy()
-        self.df_img = None if df_img is None else df_img.copy()
+        self.ser_text = None if ser_text is None else ser_text.copy()
+        self.ser_img = None if ser_img is None else ser_img.copy()
         self.df_tab_cols_train = None
         
     def one_hot_encode_cat_cols(
@@ -89,11 +89,30 @@ class FeatureEnger:
         )        
         
     def img_arr_list_str_to_arr(self) -> None:
-        assert self.df_img is not None, 'first call self.set_df_img()'
-        
-        df_img = self.df_img.applymap(lambda x: ImageDecoder(x).arr_list_str_to_arr())
+        assert self.ser_img is not None, 'first call self.set_ser_img()'
+#         print(f'self.df_img shape: {self.df_img.shape}')
+#         print(f'self.df_img sample: {self.df_img}')
+#         print('Is this the part that is taking so long?')
+#         df_img = pd.DataFrame(np.zeros(self.df_img.shape), columns=self.df_img.columns)
+#         print(f'shape df_img zeros: {df_img.shape}')
+#         print(f'df cols: {df_img.columns}')
+#         for i in df_img.index:
+#             print(f'row {i+1}/{df_img.shape[0]}')
+#             df_img.loc[i, df_img.columns[0]] = ImageDecoder(self.df_img.iloc[i, 0]).arr_list_str_to_arr()
+#             if i == 0:
+#                 print(f'first obs: {look}')
+#                 print(f'first obs type: {type(look)}')
+#                 print(f'first obs dtype: {look.dtype}')
+#         df_img = self.df_img.applymap(lambda x: ImageDecoder(x).arr_list_str_to_arr())
+        df_img = self.ser_img.apply(lambda x: ImageDecoder(x).arr_list_str_to_arr())
         self.df_img = df_img
-    
+        print(f'self.df_img dtypes: {self.df_img.dtypes}')
+        print(self.df_img.head())
+#         print(f'TYPE df_img: {type(df_img)}')
+#         print(f'SAMPLE df_img: {df_img[0]}')
+#         print(f'LEN df_img: {len(df_img)}')
+#         print(f'SHAPE df_img: {df_img.shape}')
+        
     def set_df_tab(
         self, df_tab:Union[pd.DataFrame, np.array], overwrite:bool=False
     ) -> None:
@@ -103,23 +122,23 @@ class FeatureEnger:
             )
         self.df_tab = df_tab.copy()
         
-    def set_df_text(
-        self, df_text:Union[pd.DataFrame, np.array], overwrite:bool=False
+    def set_ser_text(
+        self, ser_text:Union[pd.Series, np.array], overwrite:bool=False
     ) -> None:
         if not overwrite:
-            assert self.df_text is None, (
-                'self.df_text already exists. Run with overwrite=True to allow ovewriting'
+            assert self.ser_text is None, (
+                'self.ser_text already exists. Run with overwrite=True to allow ovewriting'
             )
-        self.df_text = df_text.copy()
+        self.ser_text = ser_text.copy()
         
-    def set_df_img(
-        self, df_img:Union[pd.DataFrame, np.array], overwrite:bool=False
+    def set_ser_img(
+        self, ser_img:Union[pd.Series, np.array], overwrite:bool=False
     ) -> None:
         if not overwrite:
-            assert self.df_img is None, (
-                'self.df_img already exists. Run with overwrite=True to allow ovewriting'
+            assert self.ser_img is None, (
+                'self.ser_img already exists. Run with overwrite=True to allow ovewriting'
             )
-        self.df_img = df_img.copy()
+        self.ser_img = ser_img.copy()
         
         
         

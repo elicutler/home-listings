@@ -8,8 +8,8 @@ COLUMN_ORDER = [
 ]
 ID_COLS = ['id']
 OUTCOME_COLS = ['listed_to_sold_days', 'first_sold_price']
-TEXT_FEATURES = ['first_desc']
-IMG_FEATURES = ['first_img_arr_list']
+TEXT_FEATURE = 'first_desc'
+IMG_FEATURE = 'first_img_arr_list'
 EXTRA_COLS = ['first_img_link', 'first_desc_date', 'first_sold_date']
 TAB_FEATURES = [
     'latitude', 'longitude', 'floor_size', 'year_built', 'exterior', 'num_rooms',
@@ -18,8 +18,7 @@ TAB_FEATURES = [
     'foundation_details', 'first_listed_date', 'first_listed_price'
 ]
 RECONSTRUCT_COLS = [
-    *ID_COLS, *OUTCOME_COLS, *TEXT_FEATURES, 
-    *IMG_FEATURES, *EXTRA_COLS, *TAB_FEATURES
+    *ID_COLS, *OUTCOME_COLS, TEXT_FEATURE, IMG_FEATURES, *EXTRA_COLS, *TAB_FEATURES
 ] 
 
 TAB_CAT_FEATURES = [
