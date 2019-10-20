@@ -2,20 +2,16 @@
 import logging
 import json
 import re
-import urllib.request
-import ast
-import numpy as np
 
 from typing import Union
 from pathlib import Path
 from datetime import datetime
-from PIL import Image
 from functools import wraps
 from gen_utils import set_logger_defaults
 from image_coders import ImageEncoder
 
 logger = logging.getLogger(__name__)
-set_logger_defaults(logger)
+set_logger_defaults(logger, level=logging.ERROR)
 
 class JsonListingParser:
     '''
@@ -103,7 +99,7 @@ class JsonListingParser:
             i for i in self.json_listing['imageURLs'] if re.search('.jpg$', i)
         ]
         img_link = jpg_image_links[0]
-        img_local = Path(img_link).name
+        img_local = Path(f'../data/{Path(img_link).name}')
         img_encoder = ImageEncoder(img_link, img_local)
         img_arr_list = img_encoder.img_to_arr_list()
         
@@ -164,10 +160,11 @@ class JsonListingParser:
         ['rooms', 'room_information'], mode='check_key_pass_key_and_val'
     )
     def set_num_rooms(self, feat_val:str, feat_key:str) -> None:
-        if self._clean_string(feat_key) == 'rooms':
-            num_rooms = self._clean_string(feat_val[0])
-        elif self._clean_string(feat_key) == 'room_information':
-            num_rooms = len(feat_val[1].split(','))
+        if self._clean_string(feat_key) in ['rooms', 'room_information']:
+            try:
+                num_rooms = int(self._clean_string(feat_val[0]).strip('_'))
+            except ValueError:
+                num_rooms = len(feat_val[1].split(','))
         self.attributes['num_rooms'] = num_rooms
         
     @_loop_over_features_list('cooling_system')

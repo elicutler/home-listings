@@ -5,6 +5,7 @@ dependencies:
   - _libgcc_mutex=0.1=main
   - _pytorch_select=0.2=gpu_0
   - asn1crypto=0.24.0=py37_0
+  - astroid=2.3.1=py37_0
   - attrs=19.1.0=py37_1
   - backcall=0.1.0=py37_0
   - blas=1.0=mkl
@@ -33,6 +34,7 @@ dependencies:
   - ipython=7.8.0=py37h39e3cac_0
   - ipython_genutils=0.2.0=py37_0
   - ipywidgets=7.5.1=py_0
+  - isort=4.3.21=py37_0
   - jedi=0.15.1=py37_0
   - jinja2=2.10.1=py37_0
   - jpeg=9b=h024ee3a_2
@@ -40,6 +42,7 @@ dependencies:
   - jupyter_client=5.3.3=py37_1
   - jupyter_console=6.0.0=py37_0
   - jupyter_core=4.5.0=py_0
+  - lazy-object-proxy=1.4.2=py37h7b6447c_0
   - libedit=3.1.20181209=hc058e9b_0
   - libffi=3.2.1=hd88cf55_4
   - libgcc-ng=9.1.0=hdf63c60_0
@@ -52,6 +55,7 @@ dependencies:
   - libxcb=1.13=h1bed415_1
   - libxml2=2.9.9=hea5a465_1
   - markupsafe=1.1.1=py37h7b6447c_0
+  - mccabe=0.6.1=py37_1
   - mistune=0.8.4=py37h7b6447c_0
   - mkl=2019.4=243
   - mkl-service=2.3.0=py37he904b0f_0
@@ -81,6 +85,7 @@ dependencies:
   - ptyprocess=0.6.0=py37_0
   - pycparser=2.19=py37_0
   - pygments=2.4.2=py_0
+  - pylint=2.4.2=py37_0
   - pyopenssl=19.0.0=py37_0
   - pyqt=5.9.2=py37h05f1152_2
   - pyrsistent=0.15.4=py37h7b6447c_0
@@ -108,6 +113,7 @@ dependencies:
   - webencodings=0.5.1=py37_1
   - wheel=0.33.6=py37_0
   - widgetsnbextension=3.5.1=py37_0
+  - wrapt=1.11.2=py37h7b6447c_0
   - xz=5.2.4=h14c3975_4
   - zeromq=4.3.1=he6710b0_3
   - zlib=1.2.11=h7b6447c_3

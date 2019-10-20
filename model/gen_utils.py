@@ -1,11 +1,11 @@
 
+import sys
 import os
-import sys; sys.path.insert(0, '.')
 import logging
 import pandas as pd
 import numpy as np
 
-from typing import Union, Any
+from typing import Union, Any, List
 from pathlib import Path
 from datetime import datetime
 from constants import COLUMN_ORDER
@@ -17,7 +17,7 @@ def set_logger_defaults(
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    streamHandler = logging.StreamHandler()
+    streamHandler = logging.StreamHandler(sys.stdout)
     streamHandler.setLevel(level)
     streamHandler.setFormatter(formatter)
     
@@ -63,9 +63,14 @@ def put_columns_in_order(in_df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def filter_df_missing_col(in_df:pd.DataFrame, col:str) -> pd.DataFrame:
+def filter_df_missing_col(
+    in_df:pd.DataFrame, col:str, missing_val:Any=np.nan
+) -> pd.DataFrame:
     df = in_df.copy()
-    df = df[df[col].notna()]
+    if missing_val == np.nan:
+        df = df[df[col].notna()]
+    else:
+        df = df[df[col] != missing_val]
     return df
 
 
@@ -73,3 +78,27 @@ def delete_file_types(path:Union[str, Path], file_type:str) -> None:
     files = [f for f in os.listdir(path) if f.endswith(file_type)]
     for f in files:
         os.remove(f'{path}/{f}')
+        
+        
+def remove_rows_missing_y(
+    y_series:pd.Series, other_dfs:List[pd.DataFrame], 
+    reset_ix_before:bool=True, reset_ix_after:bool=True
+) -> None:
+    
+    def _reset_ix(all_ser_dfs:List[Union[pd.Series, pd.DataFrame]]) -> None:
+        for df in all_ser_dfs:
+            df.reset_index(drop=True, inplace=True)
+        
+    all_ser_dfs = [y_series, *other_dfs]
+        
+    if reset_ix_before:
+        _reset_ix(all_ser_dfs)
+            
+    y_missing_ix = y_series[y_series.isna()].index
+    for df in all_ser_dfs:
+        df.drop(index=y_missing_ix, inplace=True)
+        
+    if reset_ix_after:
+        _reset_ix(all_ser_dfs)
+        
+    

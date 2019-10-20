@@ -13,7 +13,7 @@ import sys; sys.path.insert(0, '..')
 import pandas as pd
 
 from pathlib import Path
-from typing import Union, Tuple, Optional
+from typing import Union
 from credentials import DATAFINITI_API_TOKEN
 from gen_utils import (
     set_logger_defaults, get_unique_id, put_columns_in_order, filter_df_missing_col
@@ -77,6 +77,7 @@ class DatafinitiDownloader:
     def download_results_as_local_csv(self) -> str:
         all_listings_dict = {}
         results = self._summon_data()
+        logger.info(f'Unlocked {len(results)} sets of results.')
         
         for res in results:
             result_filepath = self.data_path/'results_group.txt'
@@ -85,18 +86,21 @@ class DatafinitiDownloader:
             self._unpack_to_json_files(result_filepath)
             os.remove(result_filepath)
             
-            json_listings = [
-                f for f in os.listdir(self.data_path) 
-                if f.startswith(self.json_listing_prefix) and f.endswith('.json')
-            ]
-            for f in json_listings:
-                listing_dict = self._parse_json_listing(f)
-                all_listings_dict.update({Path(f).stem: listing_dict}) 
+        json_listings = [
+            f for f in os.listdir(self.data_path) 
+            if f.startswith(self.json_listing_prefix) and f.endswith('.json')
+        ]
+        logger.info(f'Downloaded {len(json_listings)} records from Datafiniti')
+        
+        for i, f in enumerate(json_listings, start=1):
+            logger.info(f'Parsing listing {i}/{len(json_listings)}')
+            listing_dict = self._parse_json_listing(f)
+            all_listings_dict.update({Path(f).stem: listing_dict}) 
         
         all_listings_frame = pd.DataFrame(all_listings_dict).transpose()
         listings_frame_ordered = put_columns_in_order(all_listings_frame)
         listings_frame_w_id = filter_df_missing_col(listings_frame_ordered, 'id')
-        
+
         data_id = get_unique_id(str)
         csv_path = f'../data/listings_{data_id}.csv'
         listings_frame_w_id.to_csv(csv_path, header=False, index=False)
@@ -144,11 +148,13 @@ class DatafinitiDownloader:
         # record, but as a whole the file is not valid JSON. The following
         # block writes each line in into its own - valid - JSON file.
         with open(result_filepath, 'r') as read_file:
+            logger.info(f'Reading results set from {result_filepath.resolve()}')
             for line in read_file:
                 file_id = get_unique_id(str)
                 listing_filepath = self.data_path/f'{self.json_listing_prefix}_{file_id}.json'
                 
                 with open(listing_filepath, 'w') as write_file:
+                    logger.info(f'Writing listing result to {listing_filepath.resolve()}')
                     write_file.write(line)
         
     def _parse_json_listing(self, filepath:Union[str, Path]) -> dict:
