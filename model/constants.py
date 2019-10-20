@@ -18,7 +18,7 @@ TAB_FEATURES = [
     'foundation_details', 'first_listed_date', 'first_listed_price'
 ]
 RECONSTRUCT_COLS = [
-    *ID_COLS, *OUTCOME_COLS, TEXT_FEATURE, IMG_FEATURES, *EXTRA_COLS, *TAB_FEATURES
+    *ID_COLS, *OUTCOME_COLS, TEXT_FEATURE, IMG_FEATURE, *EXTRA_COLS, *TAB_FEATURES
 ] 
 
 TAB_CAT_FEATURES = [
