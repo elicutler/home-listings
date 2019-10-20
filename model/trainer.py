@@ -56,8 +56,8 @@ class Trainer:
         assert len(df.columns) == len(COLUMN_ORDER)
         df.columns = COLUMN_ORDER
         
-        logger.info('FOR TESTING')
-        df = df.iloc[:4, :]
+#         logger.info('FOR TESTING, eliminate rows')
+#         df = df.iloc[:4, :]
         
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 
