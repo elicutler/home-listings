@@ -56,15 +56,14 @@ class Trainer:
         assert len(df.columns) == len(COLUMN_ORDER)
         df.columns = COLUMN_ORDER
         
+        logger.info('FOR TESTING')
+        df = df.iloc[:4, :]
+        
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 
             ser_img=df[IMG_FEATURE]
         )
         df_y = df[outcome]
-        
-#         logger.info('Missing checks BEFORE feature engineering')
-#         check_missing_pcts(feature_enger.df_tab)
-#         check_missing_pcts(df_y)
         
         if which_loader == 'train':
             feature_enger.one_hot_encode_cat_cols(which_loader)
@@ -93,9 +92,14 @@ class Trainer:
         
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
         x_text = x_tab # FOR TESTING
-#         x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
-        x_img = torch.Tensor(feature_enger.ser_img).float().squeez()
+        x_img = torch.Tensor(feature_enger.ser_img).float().squeeze()
         y = torch.from_numpy(df_y.values).float().squeeze()
+        
+        print('CHECK DIMS')
+        print(f'x_tab DIM: {x_tab.size()}')
+        print(f'x_text DIM: {x_text.size()}')
+        print(f'x_img DIM: {x_img.size()}')
+        print(f'y DIM: {y.size()}')
                 
         dataset = torch.utils.data.TensorDataset(x_tab, x_text, x_img, y)
         data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
@@ -187,7 +191,7 @@ class Trainer:
                     
                 epoch_val_loss_avg = epoch_val_loss_sum / epoch_val_loss_nobs
 
-                logger.info(f'epoch {e}/{epochs} train loss: {epoch_val_loss_avg}')
+                logger.info(f'epoch {e}/{epochs} val loss: {epoch_val_loss_avg}')
                 total_train_loss_avg.append(epoch_val_loss_avg)
                     
 

@@ -90,28 +90,9 @@ class FeatureEnger:
         
     def img_arr_list_str_to_arr(self) -> None:
         assert self.ser_img is not None, 'first call self.set_ser_img()'
-#         print(f'self.df_img shape: {self.df_img.shape}')
-#         print(f'self.df_img sample: {self.df_img}')
-#         print('Is this the part that is taking so long?')
-#         df_img = pd.DataFrame(np.zeros(self.df_img.shape), columns=self.df_img.columns)
-#         print(f'shape df_img zeros: {df_img.shape}')
-#         print(f'df cols: {df_img.columns}')
-#         for i in df_img.index:
-#             print(f'row {i+1}/{df_img.shape[0]}')
-#             df_img.loc[i, df_img.columns[0]] = ImageDecoder(self.df_img.iloc[i, 0]).arr_list_str_to_arr()
-#             if i == 0:
-#                 print(f'first obs: {look}')
-#                 print(f'first obs type: {type(look)}')
-#                 print(f'first obs dtype: {look.dtype}')
-#         df_img = self.df_img.applymap(lambda x: ImageDecoder(x).arr_list_str_to_arr())
-        df_img = self.ser_img.apply(lambda x: ImageDecoder(x).arr_list_str_to_arr())
-        self.df_img = df_img
-        print(f'self.df_img dtypes: {self.df_img.dtypes}')
-        print(self.df_img.head())
-#         print(f'TYPE df_img: {type(df_img)}')
-#         print(f'SAMPLE df_img: {df_img[0]}')
-#         print(f'LEN df_img: {len(df_img)}')
-#         print(f'SHAPE df_img: {df_img.shape}')
+
+        ser_img = self.ser_img.apply(lambda x: ImageDecoder(x).arr_list_str_to_arr())
+        self.ser_img = ser_img
         
     def set_df_tab(
         self, df_tab:Union[pd.DataFrame, np.array], overwrite:bool=False
