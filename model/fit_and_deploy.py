@@ -22,4 +22,4 @@ try:
         'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
     })
 finally:
-    os.system('rm -rf /tmp') # otherwise the docker tmp garbage will fill up disk
+    os.system('rm -rf /tmp') # otherwise docker tmp garbage will fill up disk

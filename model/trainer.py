@@ -56,8 +56,8 @@ class Trainer:
         assert len(df.columns) == len(COLUMN_ORDER)
         df.columns = COLUMN_ORDER
         
-#         logger.info('FOR TESTING, eliminate rows')
-#         df = df.iloc[:4, :]
+        logger.info('FOR TESTING, eliminate rows')
+        df = df.iloc[:20, :]
         
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 
@@ -90,10 +90,13 @@ class Trainer:
             ]
         )
         
-        x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
+        for i in range(feature_enger.ser_img.shape[0]):
+            print(f'row {i+1}/{feature_enger.ser_img.shape[0]} dim: {feature_enger.ser_img.iloc[i].shape}')
+        
+        x_tab = torch.from_numpy(feature_enger.df_tab.values).float()
         x_text = x_tab # FOR TESTING
-        x_img = torch.Tensor(feature_enger.ser_img).float().squeeze()
-        y = torch.from_numpy(df_y.values).float().squeeze()
+        x_img = torch.Tensor(feature_enger.ser_img).float()
+        y = torch.from_numpy(df_y.values).float()
         
         print('CHECK DIMS')
         print(f'x_tab DIM: {x_tab.size()}')
