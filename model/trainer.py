@@ -57,7 +57,7 @@ class Trainer:
         df.columns = COLUMN_ORDER
         
         logger.info('FOR TESTING, eliminate rows')
-        df = df.iloc[:20, :]
+        df = df.iloc[:6, :]
         
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 

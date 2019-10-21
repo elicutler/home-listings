@@ -92,7 +92,18 @@ class FeatureEnger:
         assert self.ser_img is not None, 'first call self.set_ser_img()'
 
         ser_img = self.ser_img.apply(lambda x: ImageDecoder(x).arr_list_str_to_arr())
+        max_dims = self._get_arr_max_dims(ser_img)
+        print(f'MAX DIMS: {max_dims}')
         self.ser_img = ser_img
+        
+    @staticmethod
+    def _get_arr_max_dims(ser_img:pd.Series) -> tuple:
+        n_dims = len(ser_img.values[0].shape)
+        max_dims = [None]*n_dims
+        for i in range(n_dims):
+            max_dims[i] = ser_img.apply(lambda x: x.shape[i]).max()
+        return tuple(max_dims)
+            
         
     def set_df_tab(
         self, df_tab:Union[pd.DataFrame, np.array], overwrite:bool=False

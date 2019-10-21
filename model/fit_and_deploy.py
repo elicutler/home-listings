@@ -10,7 +10,7 @@ session = sagemaker.Session()
 role = sagemaker.get_execution_role()
 bucket = session.default_bucket()
 
-hypers = {'epochs': 100}
+hypers = {}
 estimator = PyTorch(
     entry_point='train.py', source_dir='.', role=role,
     train_instance_count=1, train_instance_type='local',
@@ -22,4 +22,4 @@ try:
         'val_dir': f's3://{bucket}/{S3_PREFIX}/val'
     })
 finally:
-    os.system('rm -rf /tmp') # otherwise docker tmp garbage will fill up disk
+    os.system('sudo rm -rf /tmp/tmp*') # otherwise docker tmp garbage will fill up disk
