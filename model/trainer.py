@@ -75,7 +75,8 @@ class Trainer:
             )
             
         feature_enger.datetime_cols_to_int()
-        feature_enger.fill_all_nans()
+        feature_enger.fill_all_tab_nans()
+        feature_enger.fill_all_img_nans()
         feature_enger.img_arr_list_str_to_arr()
         
         assert (
@@ -89,10 +90,7 @@ class Trainer:
                 feature_enger.df_tab, feature_enger.ser_text, feature_enger.ser_img
             ]
         )
-        
-        for i in range(feature_enger.ser_img.shape[0]):
-            print(f'row {i+1}/{feature_enger.ser_img.shape[0]} dim: {feature_enger.ser_img.iloc[i].shape}')
-        
+                
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float()
         x_text = x_tab # FOR TESTING
         x_img = torch.Tensor(feature_enger.ser_img).float()

@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 from gen_utils import set_logger_defaults
 from constants import TAB_CAT_FEATURES, TAB_DT_FEATURES, IMG_FEATURE
@@ -25,6 +25,7 @@ class FeatureEnger:
         self.ser_text = None if ser_text is None else ser_text.copy()
         self.ser_img = None if ser_img is None else ser_img.copy()
         self.df_tab_cols_train = None
+        self.df_img_max_dim_train = None
         
     def one_hot_encode_cat_cols(
         self, mode:str='train', train_cols=Optional[Union[pd.Index, np.array, list]],
@@ -66,7 +67,7 @@ class FeatureEnger:
         for c in TAB_DT_FEATURES:
             self.df_tab[c] = pd.to_datetime(self.df_tab[c]).astype('int') // 10**9           
             
-    def fill_all_nans(self, how:str='empirical_dist') -> None:
+    def fill_all_tab_nans(self, how:str='empirical_dist') -> None:
         assert self.df_tab is not None, 'first call self.set_df_tab()'
         assert how in ['empirical_dist']
 
@@ -74,11 +75,8 @@ class FeatureEnger:
             if self.df_tab[c].isna().mean() == 1:
                 logger.warning(f'{c} has no present values. Imputing all zeros.')
                 self.df_tab[c] = 0
-            elif self.df_tab[c].isna().sum() == 0:
-                continue
-            else:
-                if how == 'empirical_dist':
-                    self._fill_nans_from_empirical_dist(c)
+            elif how == 'empirical_dist':
+                self._fill_nans_from_empirical_dist(c)
 
     def _fill_nans_from_empirical_dist(self, col:str) -> None:
         n_missing_rows = self.df_tab.loc[self.df_tab[col].isna(), col].shape[0]
@@ -88,20 +86,37 @@ class FeatureEnger:
             np.random.choice(present_rows, size=n_missing_rows)
         )        
         
+    def fill_all_img_nans(self) -> None:
+        assert self.ser_img is not None, 'first call self.set_ser_img()
+        
+        self.ser_img = self.ser_img.apply(
+            lambda x: x if isinstance(x, np.array) else np.array([0, 0, 0])
+        )
+        
     def img_arr_list_str_to_arr(self) -> None:
         assert self.ser_img is not None, 'first call self.set_ser_img()'
 
         ser_img = self.ser_img.apply(lambda x: ImageDecoder(x).arr_list_str_to_arr())
-        max_dims = self._get_arr_max_dims(ser_img)
-        print(f'MAX DIMS: {max_dims}')
         self.ser_img = ser_img
+    
+    def resize_img_arr(self, mode:str='train') -> None:
+        assert mode in ['train', 'val', 'test']
+        if mode == 'train':
+            self.df_img_max_dim_train = self._get_arr_max_dims()
+        elif mode in ['val', 'test']:
+            assert self.df_img_max_dim_train is not None, (
+                'Need to run in train mode first'
+            )
+        for i, img in zip(pd.ser_img.index, pd.ser_img):
+            arr_max_dim = np.zeros(self.df_img_max_dim_train)
+            arr_max_dim[:img.shape[0], :img.shape[1], :img.shape[2]] = img
+            pd.ser_img.loc[i] = arr_max_dim
         
-    @staticmethod
-    def _get_arr_max_dims(ser_img:pd.Series) -> tuple:
-        n_dims = len(ser_img.values[0].shape)
+    def _get_arr_max_dims(self) -> tuple:
+        n_dims = len(self.ser_img.values[0].shape)
         max_dims = [None]*n_dims
         for i in range(n_dims):
-            max_dims[i] = ser_img.apply(lambda x: x.shape[i]).max()
+            max_dims[i] = self.ser_img.apply(lambda x: x.shape[i]).max()
         return tuple(max_dims)
             
         
