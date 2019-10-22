@@ -78,6 +78,7 @@ class Trainer:
         feature_enger.fill_all_tab_nans()
         feature_enger.img_arr_list_str_to_arr()
         feature_enger.fill_all_img_nans()
+        feature_enger.resize_img_arr()
         
         assert (
             feature_enger.df_tab.shape[0] 
@@ -93,6 +94,9 @@ class Trainer:
                 
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float()
         x_text = x_tab # FOR TESTING
+        print(f'LOOK {which_loader}')
+        for i in feature_enger.ser_img:
+            print(i.shape)
         x_img = torch.Tensor(feature_enger.ser_img).float()
         y = torch.from_numpy(df_y.values).float()
         

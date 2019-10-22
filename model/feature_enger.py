@@ -107,14 +107,22 @@ class FeatureEnger:
             assert self.df_img_max_dim_train is not None, (
                 'Need to run in train mode first'
             )
-        for i, img in zip(pd.ser_img.index, pd.ser_img):
+        for i, img in zip(self.ser_img.index, self.ser_img):
             arr_max_dim = np.zeros(self.df_img_max_dim_train)
             arr_max_dim[:img.shape[0], :img.shape[1], :img.shape[2]] = img
-            pd.ser_img.loc[i] = arr_max_dim
+            # if val/test img has greater dim than max from train, next step will crop it
+            arr_max_dim = arr_max_dim[
+                :self.df_img_max_dim_train[0],
+                :self.df_img_max_dim_train[1],
+                :self.df_img_max_dim_train[2]
+            ]
+            self.ser_img.loc[i] = arr_max_dim
         
     def _get_arr_max_dims(self) -> tuple:
         n_dims = len(self.ser_img.values[0].shape)
         max_dims = [None]*n_dims
+        print(f'LOOK N_DIMS: {n_dims}')
+        print(f'LOOK MAX_DIMS: {max_dims}')
         for i in range(n_dims):
             max_dims[i] = self.ser_img.apply(lambda x: x.shape[i]).max()
         return tuple(max_dims)
