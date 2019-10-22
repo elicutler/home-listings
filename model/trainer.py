@@ -57,7 +57,7 @@ class Trainer:
         df.columns = COLUMN_ORDER
         
         logger.info('FOR TESTING, eliminate rows')
-        df = df.iloc[:6, :]
+        df = df.iloc[:9, :]
         
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 
@@ -76,8 +76,8 @@ class Trainer:
             
         feature_enger.datetime_cols_to_int()
         feature_enger.fill_all_tab_nans()
-        feature_enger.fill_all_img_nans()
         feature_enger.img_arr_list_str_to_arr()
+        feature_enger.fill_all_img_nans()
         
         assert (
             feature_enger.df_tab.shape[0] 

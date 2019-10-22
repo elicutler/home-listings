@@ -16,7 +16,7 @@ class PyTorchModel(nn.Module):
         self.x_tab_l0_relu = nn.ReLU()
         self.x_tab_l1_fc = nn.Linear(x_tab_input_dim, 1)
         
-        print(f'x_img_input_dim: {x_img_input_dim}')
+        print(f'x_img_input_dim IN MODEL: {x_img_input_dim}')
         
         
     

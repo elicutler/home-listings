@@ -87,10 +87,10 @@ class FeatureEnger:
         )        
         
     def fill_all_img_nans(self) -> None:
-        assert self.ser_img is not None, 'first call self.set_ser_img()
+        assert self.ser_img is not None, 'first call self.set_ser_img()'
         
         self.ser_img = self.ser_img.apply(
-            lambda x: x if isinstance(x, np.array) else np.array([0, 0, 0])
+            lambda x: x if isinstance(x, np.ndarray) else np.array([0, 0, 0])
         )
         
     def img_arr_list_str_to_arr(self) -> None:
