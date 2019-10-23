@@ -17,6 +17,8 @@ class PyTorchModel(nn.Module):
         self.x_tab_l1_fc = nn.Linear(x_tab_input_dim, 1)
         
         print(f'x_img_input_dim IN MODEL: {x_img_input_dim}')
+        print(f'x_img_input_dim TRANSPOSED:')
+        print(f'{x_img_input_dim.transpose(x_img_input_dim[2], x_img_input_dim[0], x_img_input_dim[1])}')
         
         
     

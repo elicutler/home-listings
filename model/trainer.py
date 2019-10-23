@@ -94,18 +94,9 @@ class Trainer:
                 
         x_tab = torch.from_numpy(feature_enger.df_tab.values).float()
         x_text = x_tab # FOR TESTING
-        print(f'LOOK {which_loader}')
-        for i in feature_enger.ser_img:
-            print(i.shape)
         x_img = torch.Tensor(feature_enger.ser_img).float()
         y = torch.from_numpy(df_y.values).float()
-        
-        print('CHECK DIMS')
-        print(f'x_tab DIM: {x_tab.size()}')
-        print(f'x_text DIM: {x_text.size()}')
-        print(f'x_img DIM: {x_img.size()}')
-        print(f'y DIM: {y.size()}')
-                
+
         dataset = torch.utils.data.TensorDataset(x_tab, x_text, x_img, y)
         data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
         

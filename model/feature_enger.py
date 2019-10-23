@@ -90,7 +90,7 @@ class FeatureEnger:
         assert self.ser_img is not None, 'first call self.set_ser_img()'
         
         self.ser_img = self.ser_img.apply(
-            lambda x: x if isinstance(x, np.ndarray) else np.array([0, 0, 0])
+            lambda x: x if isinstance(x, np.ndarray) else np.zeros((1, 1, 1))
         )
         
     def img_arr_list_str_to_arr(self) -> None:
@@ -121,10 +121,10 @@ class FeatureEnger:
     def _get_arr_max_dims(self) -> tuple:
         n_dims = len(self.ser_img.values[0].shape)
         max_dims = [None]*n_dims
-        print(f'LOOK N_DIMS: {n_dims}')
-        print(f'LOOK MAX_DIMS: {max_dims}')
+        
         for i in range(n_dims):
             max_dims[i] = self.ser_img.apply(lambda x: x.shape[i]).max()
+            
         return tuple(max_dims)
             
         
