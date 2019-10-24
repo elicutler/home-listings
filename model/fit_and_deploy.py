@@ -24,8 +24,3 @@ try:
 finally:
     # otherwise docker tmp garbage will fill up disk
     os.system('sudo rm -rf /tmp/tmp*') 
-    os.system('sudo rm -rf /tmp/lib/*')
-    os.system('sudo rm -rf /tmp/jetty*')
-    os.system('sudo rm -rf /tmp/brazil*')
-    os.system('sudo rm -rf /tmp/yarn*')
-    os.system('sudo rm -rf /tmp/v8*')
