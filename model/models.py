@@ -16,25 +16,23 @@ class PyTorchModel(nn.Module):
         self.x_tab_l0_relu = nn.ReLU()
         self.x_tab_l1_fc = nn.Linear(x_tab_input_dim, 1)
         
-        img_c, img_h, img_w = x_img_input_dim[2], x_img_input_dim[0], x_img_input_dim[1]
-        
-        print(f'IMG_C:{img_c}, IMG_H:{img_h}, IMG_W:{img_w}')
-        
         self.x_img_l0_conv2d = nn.Conv2d(3, 6, 5)
         self.x_img_l0_dropout = nn.Dropout(p=0.5)
         self.x_img_l0_relu = nn.ReLU()
-        self.x_img_l1_fc = nn.Linear(self._get_nodes('l0'), 1)
-        
+#         self.x_img_l1_fc = self._forward_img_thru_cnn()
+        self.x_img_l0_flatten = nn.Flatten()
+    
     def forward(
         self, x_tab:torch.Tensor, x_text:torch.Tensor, x_img:torch.Tensor
     ) -> torch.Tensor:
                     
-        print(f' X_TAB SIZE: {x_tab.size()}')
         x_tab = self.x_tab_l0_fc(x_tab)
         x_tab = self.x_tab_l0_dropout(x_tab)
         x_tab = self.x_tab_l0_relu(x_tab)
         x_tab = self.x_tab_l1_fc(x_tab)
         
+#         x_img = self._forward_img_thru_cnn(x_img)
+
         # for img, move n_channels dim to front
         print(f'X_IMG ORIG SIZE: {x_img.size()}')
         x_img = x_img.view(-1, x_img.size()[3], x_img.size()[1], x_img.size()[2])
@@ -42,12 +40,25 @@ class PyTorchModel(nn.Module):
         x_img = self.x_img_l0_conv2d(x_img)
         x_img = self.x_img_l0_dropout(x_img)
         x_img = self.x_img_l0_relu(x_img)
+        print(f'X_IMG SIZE AFTER CNN: {x_img.size()}')
         x_img = self.x_img_l0_flatten(x_img)
-        
-        print(f'X_IMG OUT SIZE: {x_img.size()}')
-        print(f'FLATTEN SIZE: {x_img.flatten().size()}')
+#         print(f'X_IMG SIZE AFTER FLATTEN: {x_img.flatten(start_dim=1).size()}')
+        print(f'X_IMG SIZE AFTER FLATTEN: {x_img.size()}')
         
         return x_tab
+    
+#     def _forward_img_thru_cnn(self, x_img:torch.Tensor) -> torch.Tensor:
+#         # for img, move n_channels dim to front
+#         print(f'X_IMG ORIG SIZE: {x_img.size()}')
+#         x_img = x_img.view(-1, x_img.size()[3], x_img.size()[1], x_img.size()[2])
+#         print(f'X_IMG SIZE AFTER TRANSPOSE: {x_img.size()}')
+#         x_img = self.x_img_l0_conv2d(x_img)
+#         x_img = self.x_img_l0_dropout(x_img)
+#         x_img = self.x_img_l0_relu(x_img)
+#         print(f'X_IMG SIZE AFTER CNN: {x_img.size()}')
+#         print(f'X_IMG SIZE AFTER FLATTEN: {x_img.flatten(start_dim=1).size()}')
+#         return x_img
+        
 
 
 # class Net(nn.Module):
