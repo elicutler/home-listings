@@ -117,6 +117,7 @@ class FeatureEnger:
                 :self.df_img_max_dim_train[2]
             ]
             self.ser_img.loc[i] = arr_max_dim
+        logger.info(f'CHECK SER_IMG OBS SHAPE: {self.ser_img.loc[0]}')
         
     def _get_arr_max_dims(self) -> tuple:
         n_dims = len(self.ser_img.values[0].shape)

@@ -42,9 +42,9 @@ class PyTorchModel(nn.Module):
         x_img = self.x_img_l0_relu(x_img)
         print(f'X_IMG SIZE AFTER CNN: {x_img.size()}')
         x_img = self.x_img_l0_flatten(x_img)
-#         print(f'X_IMG SIZE AFTER FLATTEN: {x_img.flatten(start_dim=1).size()}')
-        print(f'X_IMG SIZE AFTER FLATTEN: {x_img.size()}')
-        
+        print(f'X_IMG SIZE AFTER FLATTEN: {x_img.size()}') 
+        # train: torch.Size([3, 1733142])
+        # val: torch.Size([3, 15928080]) -- train and val should be the same! original x_img sizes differ
         return x_tab
     
 #     def _forward_img_thru_cnn(self, x_img:torch.Tensor) -> torch.Tensor:

@@ -79,6 +79,7 @@ class Trainer:
         feature_enger.img_arr_list_str_to_arr()
         feature_enger.fill_all_img_nans()
         feature_enger.resize_img_arr()
+        logger.info(f'CHECK X_IMG SIZE FOR {which_loader}: {torch.Tensor(feature_enger.ser_img)}')
         
         assert (
             feature_enger.df_tab.shape[0] 

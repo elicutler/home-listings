@@ -13,8 +13,8 @@ bucket = session.default_bucket()
 hypers = {}
 estimator = PyTorch(
     entry_point='train.py', source_dir='.', role=role,
-    train_instance_count=1, train_instance_type='local',
-    framework_version='1.1', hyperparameters={**hypers}
+    train_instance_count=1, train_instance_type='ml.p2.xlarge',
+    framework_version='1.2', hyperparameters={**hypers}
 )
 try:
     estimator.fit({
