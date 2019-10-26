@@ -55,10 +55,7 @@ class Trainer:
             
         assert len(df.columns) == len(COLUMN_ORDER)
         df.columns = COLUMN_ORDER
-        
-        logger.info('FOR TESTING, eliminate rows')
-        df = df.iloc[:9, :]
-        
+
         feature_enger = FeatureEnger(
             df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 
             ser_img=df[IMG_FEATURE]
@@ -79,7 +76,6 @@ class Trainer:
         feature_enger.img_arr_list_str_to_arr()
         feature_enger.fill_all_img_nans()
         feature_enger.resize_img_arr()
-        logger.info(f'CHECK X_IMG SIZE FOR {which_loader}: {torch.Tensor(feature_enger.ser_img).size()}')
         
         assert (
             feature_enger.df_tab.shape[0] 
