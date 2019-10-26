@@ -10,7 +10,7 @@ from gen_utils import (
     set_logger_defaults, put_columns_in_order, remove_rows_missing_y
 )
 from constants import (
-    COLUMN_ORDER, TAB_FEATURES, TAB_CAT_FEATURES, TEXT_FEATURES, IMG_FEATURES
+    COLUMN_ORDER, TAB_FEATURES, TAB_CAT_FEATURES, TEXT_FEATURE, IMG_FEATURE
 )
 from models import PyTorchModel
 from feature_enger import FeatureEnger
@@ -55,16 +55,12 @@ class Trainer:
             
         assert len(df.columns) == len(COLUMN_ORDER)
         df.columns = COLUMN_ORDER
-        
+
         feature_enger = FeatureEnger(
-            df_tab=df[TAB_FEATURES], df_text=df[TEXT_FEATURES], 
-            df_img=df[IMG_FEATURES]
+            df_tab=df[TAB_FEATURES], ser_text=df[TEXT_FEATURE], 
+            ser_img=df[IMG_FEATURE]
         )
         df_y = df[outcome]
-        
-#         logger.info('Missing checks BEFORE feature engineering')
-#         check_missing_pcts(feature_enger.df_tab)
-#         check_missing_pcts(df_y)
         
         if which_loader == 'train':
             feature_enger.one_hot_encode_cat_cols(which_loader)
@@ -76,26 +72,28 @@ class Trainer:
             )
             
         feature_enger.datetime_cols_to_int()
-        feature_enger.fill_all_nans()
+        feature_enger.fill_all_tab_nans()
         feature_enger.img_arr_list_str_to_arr()
+        feature_enger.fill_all_img_nans()
+        feature_enger.resize_img_arr()
         
         assert (
             feature_enger.df_tab.shape[0] 
-            == feature_enger.df_text.shape[0]
-            == feature_enger.df_img.shape[0]
+            == feature_enger.ser_text.shape[0]
+            == feature_enger.ser_img.shape[0]
             == df_y.shape[0]
         )
         remove_rows_missing_y(
             df_y, other_dfs=[
-                feature_enger.df_tab, feature_enger.df_text, feature_enger.df_img
+                feature_enger.df_tab, feature_enger.ser_text, feature_enger.ser_img
             ]
         )
-        
-        x_tab = torch.from_numpy(feature_enger.df_tab.values).float().squeeze()
-        x_text = x_tab # FOR TESTING
-        x_img = torch.from_numpy(feature_enger.df_img.values).float().squeeze()
-        y = torch.from_numpy(df_y.values).float().squeeze()
                 
+        x_tab = torch.from_numpy(feature_enger.df_tab.values).float()
+        x_text = x_tab # FOR TESTING
+        x_img = torch.Tensor(feature_enger.ser_img).float()
+        y = torch.from_numpy(df_y.values).float()
+
         dataset = torch.utils.data.TensorDataset(x_tab, x_text, x_img, y)
         data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
         
@@ -186,7 +184,7 @@ class Trainer:
                     
                 epoch_val_loss_avg = epoch_val_loss_sum / epoch_val_loss_nobs
 
-                logger.info(f'epoch {e}/{epochs} train loss: {epoch_val_loss_avg}')
+                logger.info(f'epoch {e}/{epochs} val loss: {epoch_val_loss_avg}')
                 total_train_loss_avg.append(epoch_val_loss_avg)
                     
 
