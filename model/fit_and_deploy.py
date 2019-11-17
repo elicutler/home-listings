@@ -24,3 +24,4 @@ try:
 finally:
     # otherwise docker tmp garbage will fill up disk
     os.system('sudo rm -rf /tmp/tmp*') 
+    
